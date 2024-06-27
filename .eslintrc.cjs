@@ -8,8 +8,10 @@
 module.exports = {
   root: true,
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+    // ecmaVersion: "latest",
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
     ecmaFeatures: {
       jsx: true,
     },
@@ -39,14 +41,14 @@ module.exports = {
         react: {
           version: "detect",
         },
-        formComponents: ["Form"],
-        linkComponents: [
-          { name: "Link", linkAttribute: "to" },
-          { name: "NavLink", linkAttribute: "to" },
-        ],
-        "import/resolver": {
-          typescript: {},
-        },
+        // formComponents: ["Form"],
+        // linkComponents: [
+        //   { name: "Link", linkAttribute: "to" },
+        //   { name: "NavLink", linkAttribute: "to" },
+        // ],
+        // "import/resolver": {
+        //   typescript: {},
+        // },
       },
     },
 
@@ -70,6 +72,7 @@ module.exports = {
         "plugin:@typescript-eslint/recommended",
         "plugin:import/recommended",
         "plugin:import/typescript",
+        "plugin:prettier/recommended"
       ],
     },
 
