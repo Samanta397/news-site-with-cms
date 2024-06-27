@@ -8,7 +8,7 @@
 module.exports = {
   root: true,
   parserOptions: {
-    // ecmaVersion: "latest",
+    ecmaVersion: "latest",
     project: 'tsconfig.json',
     tsconfigRootDir: __dirname,
     sourceType: 'module',
