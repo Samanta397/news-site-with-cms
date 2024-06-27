@@ -3,6 +3,7 @@ volumes:
   data:
 services:
   postgres:
+    container_name: postgres_db
     image: "postgres:latest"
     restart: always
     environment:

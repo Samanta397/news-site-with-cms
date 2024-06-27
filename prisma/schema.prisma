@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            Int         @id @default(autoincrement())
+  email         String      @unique
+  first_name    String
+  last_name     String
+  password      String
+  role          Role        @default(USER)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("users")
+}
+
+model News {
+  id             Int         @id @default(autoincrement())
+  title          String
+  content        String
+  author         String
+
+  is_graft       Boolean     @default(false)
+  is_hidden      Boolean     @default(false)
+  is_deleted     Boolean     @default(false)
+
+  createdAt      DateTime    @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  media          Media?      @relation(fields: [media_id], references: [id])
+  media_id       Int?        @unique
+  tags           TagsOnNews[]
+
+
+  @@map("news")
+}
+
+model Tag {
+  id            Int           @id @default(autoincrement())
+  tagName       String        @unique
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  news          TagsOnNews[]
+
+  @@map("tags")
+}
+
+model TagsOnNews {
+  new           News    @relation(fields: [new_id], references: [id], onDelete: Cascade)
+  new_id        Int
+  tag           Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id        Int
+
+  @@id([new_id, tag_id])
+
+  @@map("tags_on_news")
+}
+
+model Media {
+  id             Int           @id @default(autoincrement())
+  link           String        @unique
+  altText        String?
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  news          News[]
+
+  @@map("media")
+}
