@@ -13,8 +13,6 @@ const defaultUser = {
 
 async function seed() {
   try {
-    const hashedPassword = CryptoJS.SHA256(defaultUser.password).toString();
-
     const isExisted = await prisma.user.findUnique({
       where: {
         email: defaultUser.email,
@@ -25,6 +23,8 @@ async function seed() {
       console.log('Default user already existed');
       return;
     }
+
+    const hashedPassword = CryptoJS.SHA256(defaultUser.password).toString();
 
     await prisma.user.create({
       data: {
