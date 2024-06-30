@@ -6,7 +6,7 @@ import { Button } from '~/components/Button';
 import { useState } from 'react';
 import { ActionFunctionArgs } from '@remix-run/node';
 import { LoginFields, LoginFieldsErrors } from '~/utils/validation/schema';
-import { createUser, login } from '~/api/user.server';
+import { login } from '~/api/user.server';
 import { Alert, AlertStatus } from '~/components/Alert';
 
 type ActionData = {

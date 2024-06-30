@@ -1,11 +1,11 @@
-import { ChangeEvent, ChangeEventHandler } from 'react';
+import { ChangeEvent } from 'react';
 
 interface FormFieldProps {
   name: string;
   htmlFor: string;
   label: string;
   type?: string;
-  value: any;
+  value: string;
   onChange?: (value: string) => void;
   required?: boolean;
 }
@@ -22,6 +22,7 @@ export function FormField({
     onChange(event.target.value);
   };
 
+  //TODO: add require state
   return (
     <div>
       <label

@@ -1,4 +1,3 @@
-import React from 'react';
 import { InfoIcon } from '~/icons/InfoIcon';
 import { WarningIcon } from '~/icons/WarningIcon';
 import { ErrorIcon } from '~/icons/ErrorIcon';

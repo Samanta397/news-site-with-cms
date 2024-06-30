@@ -143,6 +143,7 @@ export default function Register() {
             <Link
               to="/login"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 ml-1"
+              onClick={() => setState(state == 'login' ? 'register' : 'login')}
             >
               {state === 'login' ? 'Sign up' : 'Sign in'}
             </Link>
