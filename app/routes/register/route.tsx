@@ -56,7 +56,7 @@ export default function Register() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<Role>('');
+  const [role, setRole] = useState<Role>(Role.USER);
 
   const roles = [Role.ADMIN, Role.USER];
 

@@ -1,11 +1,12 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
+import { Role } from '~/types/user.types';
 
 type SelectProps = {
   label: string;
   name: string;
   options: string[];
   value: string;
-  onSelect: (value: string) => void;
+  onSelect: (value: string | Role) => void;
 };
 
 export function Select({ label, name, options, value, onSelect }: SelectProps) {

@@ -1,15 +1,20 @@
 import { Layout } from '~/components/Layout';
 import { FormField } from '~/components/FormField';
 import { Card } from '~/components/Card';
-import { Form, json, Link, useActionData } from '@remix-run/react';
+import { Form, json, Link, redirect, useActionData } from '@remix-run/react';
 import { Button } from '~/components/Button';
 import { useState } from 'react';
 import { ActionFunctionArgs } from '@remix-run/node';
 import { LoginFields, LoginFieldsErrors } from '~/utils/validation/schema';
+import { createUser, login } from '~/api/user.server';
+import { Alert, AlertStatus } from '~/components/Alert';
 
 type ActionData = {
   fields: LoginFields;
-  errors?: LoginFieldsErrors;
+  errors?: LoginFieldsErrors & {
+    error: string;
+    status: number;
+  };
 };
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -23,7 +28,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  return json({});
+  const loginData = await login(fields);
+
+  if ('error' in loginData) {
+    return json({
+      fields,
+      errors: loginData,
+    });
+  }
+
+  return redirect('/dashboard');
 };
 
 export default function Login() {
@@ -44,6 +58,20 @@ export default function Login() {
             Sign in to your account
           </h2>
         </div>
+
+        {actionData?.errors && (
+          <div className="mt-4">
+            <Alert
+              title={'Something happened during login'}
+              description={actionData?.errors?.error}
+              status={
+                actionData?.errors?.status === 500
+                  ? AlertStatus.ERROR
+                  : AlertStatus.WARNING
+              }
+            />
+          </div>
+        )}
 
         <div className="mt-6 min-w-80 sm:mx-auto sm:w-full sm:max-w-sm">
           <Form className="space-y-4" method="post">

@@ -1,5 +1,5 @@
 import { prisma } from './prisma.server';
-import { RegisterForm, UpdateUserData } from '~/types/user.types';
+import { LoginForm, RegisterForm, UpdateUserData } from '~/types/user.types';
 import CryptoJS from 'crypto-js';
 
 export async function createUser(data: RegisterForm) {
@@ -72,5 +72,30 @@ export async function deleteUser(id: number) {
     return true;
   } catch (error) {
     console.log('DELETE USER ERROR', error);
+  }
+}
+
+export async function login(data: LoginForm) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    const hashedPassword = CryptoJS.SHA256(data.password).toString();
+
+    if (!user || user.password !== hashedPassword) {
+      return {
+        error: `Incorrect login or password`,
+        status: 400,
+      };
+    }
+
+    return user;
+  } catch (error) {
+    console.log('LOGIN ERROR', error);
+    return {
+      error: `Server error`,
+      status: 500,
+    };
   }
 }
