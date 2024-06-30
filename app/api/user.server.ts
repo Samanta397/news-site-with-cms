@@ -2,11 +2,6 @@ import { prisma } from './prisma.server';
 import { RegisterForm, UpdateUserData } from '~/types/user.types';
 import CryptoJS from 'crypto-js';
 
-enum Role {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
-
 export async function createUser(data: RegisterForm) {
   try {
     const exists = await prisma.user.count({ where: { email: data.email } });
@@ -22,14 +17,20 @@ export async function createUser(data: RegisterForm) {
     await prisma.user.create({
       data: {
         email: data.email,
+        first_name: data.first_name,
+        last_name: data.last_name,
         password: hashedPassword,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        role: data.isAdmin ? Role.ADMIN : Role.USER,
+        role: data.role.toUpperCase(), //TODO: fix with enum
       },
     });
+
+    return true;
   } catch (error) {
     console.log('CREATE USER ERROR', error);
+    return {
+      error: `Server error`,
+      status: 500,
+    };
   }
 }
 

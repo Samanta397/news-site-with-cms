@@ -29,6 +29,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Login() {
   const actionData = useActionData<typeof action>() as ActionData;
 
+  const [state, setState] = useState('login');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -43,7 +45,7 @@ export default function Login() {
           </h2>
         </div>
 
-        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="mt-6 min-w-80 sm:mx-auto sm:w-full sm:max-w-sm">
           <Form className="space-y-4" method="post">
             <FormField
               name="email"
@@ -73,12 +75,13 @@ export default function Login() {
           </Form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?
+            {state === 'login' ? 'Not a member?' : 'Login to account'}
             <Link
-              to="/register"
+              to={state === 'login' ? '/register' : '/login'}
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 ml-1"
+              onClick={() => setState(state == 'login' ? 'register' : 'login')}
             >
-              Sing up
+              {state === 'login' ? 'Sign up' : 'Sign in'}
             </Link>
           </p>
         </div>

@@ -1,9 +1,9 @@
 export type RegisterForm = {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  isAdmin?: boolean;
+  first_name: string;
+  last_name: string;
+  role: Role;
 };
 
 export type User = {
@@ -22,3 +22,8 @@ export type LoginForm = {
   email: string;
   password: string;
 };
+
+export enum Role {
+  USER = 'User',
+  ADMIN = 'Admin',
+}
