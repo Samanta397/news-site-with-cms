@@ -1,20 +1,11 @@
 import { prisma } from './prisma.server';
-import { LoginForm, RegisterForm, UpdateUserData } from '~/types/user.types';
+import { RegisterForm, UpdateUserData } from '~/types/user.types';
 import CryptoJS from 'crypto-js';
 
 export async function createUser(data: RegisterForm) {
   try {
-    const exists = await prisma.user.count({ where: { email: data.email } });
-
-    if (exists) {
-      return {
-        error: `User already exists with that email`,
-        status: 400,
-      };
-    }
-
     const hashedPassword = CryptoJS.SHA256(data.password).toString();
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email: data.email,
         first_name: data.first_name,
@@ -24,13 +15,13 @@ export async function createUser(data: RegisterForm) {
       },
     });
 
-    return true;
+    return user;
   } catch (error) {
     console.log('CREATE USER ERROR', error);
-    return {
-      error: `Server error`,
-      status: 500,
-    };
+    // return {
+    //   error: `Server error`,
+    //   status: 500,
+    // };
   }
 }
 
@@ -75,27 +66,18 @@ export async function deleteUser(id: number) {
   }
 }
 
-export async function login(data: LoginForm) {
+export async function getUserByEmail(email: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { email },
     });
-
-    const hashedPassword = CryptoJS.SHA256(data.password).toString();
-
-    if (!user || user.password !== hashedPassword) {
-      return {
-        error: `Incorrect login or password`,
-        status: 400,
-      };
-    }
 
     return user;
   } catch (error) {
     console.log('LOGIN ERROR', error);
-    return {
-      error: `Server error`,
-      status: 500,
-    };
+    // return {
+    //   error: `Server error`,
+    //   status: 500,
+    // };
   }
 }

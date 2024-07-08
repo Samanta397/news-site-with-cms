@@ -11,8 +11,9 @@ import {
   RegisterFields,
   RegisterFieldsErrors,
 } from '~/utils/validation/schema';
-import { createUser } from '~/api/user.server';
 import { Alert, AlertStatus } from '~/components/Alert';
+import { getUserSession, register } from '~/api/auth.server';
+import { commitSession, getSession } from '~/session';
 
 type ActionData = {
   fields: RegisterFields;
@@ -22,6 +23,8 @@ type ActionData = {
   };
 };
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const session = await getUserSession(request);
+
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries()) as RegisterFields;
   const result = RegisterFields.safeParse(fields);
@@ -33,18 +36,24 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  const registeredData = await createUser(fields);
+  const registeredData = await register(fields);
 
-  if (typeof registeredData === 'boolean' && registeredData) {
-    return redirect('/dashboard');
-  } else {
+  if (registeredData && 'error' in registeredData) {
     return json({
       fields,
       errors: registeredData,
     });
   }
 
-  return null;
+  if (registeredData && 'id' in registeredData) {
+    session.set('userId', registeredData.id.toString());
+  }
+
+  return redirect('/dashboard', {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
 };
 
 export default function Register() {
@@ -56,7 +65,7 @@ export default function Register() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<Role>(Role.USER);
+  const [role, setRole] = useState<string>(Role.USER);
 
   const roles = [Role.ADMIN, Role.USER];
 

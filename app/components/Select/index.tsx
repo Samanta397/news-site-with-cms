@@ -6,7 +6,7 @@ type SelectProps = {
   name: string;
   options: string[];
   value: string;
-  onSelect: (value: string | Role) => void;
+  onSelect: (value: string) => void;
 };
 
 export function Select({ label, name, options, value, onSelect }: SelectProps) {

@@ -23,6 +23,7 @@ export function FormField({
   };
 
   //TODO: add require state
+  //TODO: add error state
   return (
     <div>
       <label

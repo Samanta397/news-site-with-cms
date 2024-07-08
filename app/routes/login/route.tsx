@@ -4,10 +4,11 @@ import { Card } from '~/components/Card';
 import { Form, json, Link, redirect, useActionData } from '@remix-run/react';
 import { Button } from '~/components/Button';
 import { useState } from 'react';
-import { ActionFunctionArgs } from '@remix-run/node';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { LoginFields, LoginFieldsErrors } from '~/utils/validation/schema';
-import { login } from '~/api/user.server';
 import { Alert, AlertStatus } from '~/components/Alert';
+import { getUserSession, login } from '~/api/auth.server';
+import { commitSession, getSession } from '~/session';
 
 type ActionData = {
   fields: LoginFields;
@@ -16,7 +17,26 @@ type ActionData = {
     status: number;
   };
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getUserSession(request);
+
+  if (session.has('userId')) {
+    // Redirect to the home page if they are already signed in.
+    return redirect('/dashboard');
+  }
+
+  const data = { error: session.get('error') };
+  return json(data, {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
+}
+
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const session = await getUserSession(request);
+
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries()) as LoginFields;
   const result = LoginFields.safeParse(fields);
@@ -30,14 +50,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const loginData = await login(fields);
 
-  if ('error' in loginData) {
+  if (loginData && 'error' in loginData) {
     return json({
       fields,
       errors: loginData,
     });
   }
 
-  return redirect('/dashboard');
+  if (loginData && 'id' in loginData) {
+    session.set('userId', loginData.id.toString());
+  }
+
+  return redirect('/dashboard', {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
 };
 
 export default function Login() {
