@@ -1,4 +1,4 @@
-import { useNavigate } from '@remix-run/react';
+import { Link, useNavigate } from '@remix-run/react';
 
 export default function Users() {
   const navigate = useNavigate();

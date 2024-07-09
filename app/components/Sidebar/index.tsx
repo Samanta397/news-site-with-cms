@@ -6,7 +6,7 @@ import { PuzzleIcon } from '~/icons/PuzzleIcon';
 import { AdsIcon } from '~/icons/AdsIcon';
 import { SettingsIcon } from '~/icons/SettingsIcon';
 import { LogoutIcon } from '~/icons/LogoutIcon';
-import { useNavigate } from '@remix-run/react';
+import { Link, useNavigate } from '@remix-run/react';
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -39,13 +39,13 @@ export function Sidebar() {
         <ul className="space-y-2 font-medium text-lg">
           {menu.map((item) => (
             <li>
-              <a
-                href={item.to}
+              <Link
+                to={item.to}
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-indigo-700 group"
               >
                 {item.icon}
                 <span className="ms-4">{item.title}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
