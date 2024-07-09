@@ -13,11 +13,11 @@ export function Sidebar() {
 
   const menu = [
     { title: 'Dashboard', icon: <HomeIcon />, to: '/dashboard' },
-    { title: 'Users_index', icon: <UsersIcon />, to: '/dashboard/users' },
+    { title: 'Users', icon: <UsersIcon />, to: '/dashboard/users' },
     { title: 'Tags', icon: <TagIcon />, to: '/dashboard/tags' },
     { title: 'News', icon: <NewsIcon />, to: '/dashboard/news' },
     { title: 'RSS', icon: <PuzzleIcon />, to: '/dashboard/rss' },
-    { title: 'ads', icon: <AdsIcon />, to: '/dashboard/ads' },
+    { title: 'Ads', icon: <AdsIcon />, to: '/dashboard/ads' },
     { title: 'Settings', icon: <SettingsIcon />, to: '/dashboard/settings' },
     { title: 'Logout', icon: <LogoutIcon />, to: '/logout' },
   ];
