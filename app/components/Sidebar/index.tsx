@@ -37,8 +37,8 @@ export function Sidebar() {
           />
         </div>
         <ul className="space-y-2 font-medium text-lg">
-          {menu.map((item) => (
-            <li>
+          {menu.map((item, idx) => (
+            <li key={idx}>
               <Link
                 to={item.to}
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-indigo-700 group"

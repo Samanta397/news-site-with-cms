@@ -127,6 +127,7 @@ export default function Login() {
               type={'submit'}
               label={'Sign in'}
               onClick={() => console.log('Sing in')}
+              fullWidth
             />
           </Form>
 

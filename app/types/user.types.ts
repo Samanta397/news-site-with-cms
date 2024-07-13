@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 export type RegisterForm = {
   email: string;
   password: string;
@@ -27,3 +29,5 @@ export enum Role {
   USER = 'User',
   ADMIN = 'Admin',
 }
+
+export type PrismaUser = Prisma.UserGetPayload<Prisma.UserDefaultArgs>;

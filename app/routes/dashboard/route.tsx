@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
-import { json, Outlet, redirect, useNavigate } from '@remix-run/react';
+import { Outlet, redirect, useNavigate } from '@remix-run/react';
 import { Sidebar } from '~/components/Sidebar';
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -15,6 +15,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 export default function Dashboard() {
   const navigate = useNavigate();
+
   return (
     // <div>
     //   <div>Hi there</div>
@@ -47,10 +48,12 @@ export default function Dashboard() {
       <Sidebar />
 
       <div className="p-4 sm:ml-64">
-        <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+        <div className="p-4 ">
           <Outlet />
         </div>
       </div>
     </>
   );
 }
+
+//border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700

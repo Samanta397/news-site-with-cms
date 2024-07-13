@@ -144,6 +144,7 @@ export default function Register() {
               type={'submit'}
               label={'Sign in'}
               onClick={() => console.log('Sing in')}
+              fullWidth
             />
           </Form>
 
