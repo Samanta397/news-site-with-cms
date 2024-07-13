@@ -1,6 +1,8 @@
 import { prisma } from './prisma.server';
-import { RegisterForm, UpdateUserData } from '~/types/user.types';
+import { RegisterForm, Role, UpdateUserData } from '~/types/user.types';
 import CryptoJS from 'crypto-js';
+import { getBindingIdentifiers } from '@babel/types';
+import keys = getBindingIdentifiers.keys;
 
 export async function createUser(data: RegisterForm) {
   try {
@@ -11,7 +13,7 @@ export async function createUser(data: RegisterForm) {
         first_name: data.first_name,
         last_name: data.last_name,
         password: hashedPassword,
-        role: data.role.toUpperCase(), //TODO: fix with enum
+        role: data.role.toUpperCase() as keyof typeof Role,
       },
     });
 
@@ -25,13 +27,16 @@ export async function createUser(data: RegisterForm) {
   }
 }
 
-export async function updateUser(data: Partial<UpdateUserData>) {
+export async function updateUser({ id, ...data }: Partial<UpdateUserData>) {
   try {
     await prisma.user.update({
       where: {
-        id: data.id,
+        id: Number(id),
       },
-      data: { ...data },
+      data: {
+        ...data,
+        role: data.role?.toUpperCase() as keyof typeof Role,
+      },
     });
   } catch (error) {
     console.log('UPDATE USER ERROR', error);

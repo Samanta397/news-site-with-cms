@@ -1,4 +1,4 @@
-import { json, redirect, useLoaderData, useNavigate } from '@remix-run/react';
+import { json, useLoaderData, useNavigate } from '@remix-run/react';
 import { Table } from '~/components/Table';
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { getUsers } from '~/api/user.server';
@@ -28,6 +28,8 @@ export default function Users() {
         headings={headings}
         rows={users}
         onClick={(to: string) => navigate(to)}
+        entityName={'Users'}
+        emptyMessage={'No users yet'}
       />
     </>
   );

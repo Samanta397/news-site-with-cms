@@ -8,7 +8,9 @@ interface FormFieldProps {
   value: string;
   onChange?: (value: string) => void;
   required?: boolean;
+  hidden?: boolean;
 }
+
 export function FormField({
   name,
   htmlFor,
@@ -17,6 +19,7 @@ export function FormField({
   value,
   onChange = () => {},
   required = false,
+  hidden = false,
 }: FormFieldProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
@@ -25,7 +28,7 @@ export function FormField({
   //TODO: add require state
   //TODO: add error state
   return (
-    <div>
+    <div className={hidden ? 'hidden' : ''}>
       <label
         htmlFor={htmlFor}
         className="block text-sm font-medium leading-8 text-gray-900"

@@ -1,5 +1,5 @@
 import { ChangeEvent } from 'react';
-import { Role } from '~/types/user.types';
+import { capitalize } from '~/utils/capitalize';
 
 type SelectProps = {
   label: string;
@@ -23,7 +23,7 @@ export function Select({ label, name, options, value, onSelect }: SelectProps) {
         <select
           id={name}
           name={name}
-          value={value}
+          value={capitalize(value)}
           onChange={handleSelect}
           className="block w-full bg-white p-2.5 rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         >

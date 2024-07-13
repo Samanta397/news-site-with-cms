@@ -11,9 +11,17 @@ type TableProps = {
   headings: HeadingType[];
   rows: RowType[];
   onClick: (value: string) => void;
+  emptyMessage?: string;
+  entityName: string;
 };
 
-export function Table({ headings, rows, onClick }: TableProps) {
+export function Table({
+  headings,
+  rows,
+  onClick,
+  entityName,
+  emptyMessage,
+}: TableProps) {
   return (
     <div className="relative overflow-x-auto bg-gray-300 shadow-md sm:rounded-lg">
       <table className="w-full text-sm text-left rtl:text-right text-gray-500  border-2  overflow-hidden rounded-lg">
@@ -40,6 +48,16 @@ export function Table({ headings, rows, onClick }: TableProps) {
               ))}
             </tr>
           ))}
+          {rows.length === 0 && (
+            <tr>
+              <td
+                colSpan={2}
+                className={'text-center bg-white py-10 text-2xl font-bold'}
+              >
+                {emptyMessage ? emptyMessage : `${entityName} not found`}
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

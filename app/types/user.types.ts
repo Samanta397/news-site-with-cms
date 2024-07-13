@@ -16,8 +16,8 @@ export type User = {
 };
 
 export type UpdateUserData = {
-  id: number;
-  isAdmin?: boolean;
+  id: string;
+  role: Role;
 } & Partial<User>;
 
 export type LoginForm = {
