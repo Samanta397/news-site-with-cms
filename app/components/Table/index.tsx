@@ -51,7 +51,7 @@ export function Table({
           {rows.length === 0 && (
             <tr>
               <td
-                colSpan={2}
+                colSpan={headings.length}
                 className={'text-center bg-white py-10 text-2xl font-bold'}
               >
                 {emptyMessage ? emptyMessage : `${entityName} not found`}

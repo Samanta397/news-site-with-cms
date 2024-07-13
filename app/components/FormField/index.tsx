@@ -1,4 +1,5 @@
 import { ChangeEvent } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 interface FormFieldProps {
   name: string;
@@ -25,10 +26,12 @@ export function FormField({
     onChange(event.target.value);
   };
 
+  const styles = twMerge('w-full', hidden && 'hidden');
+
   //TODO: add require state
   //TODO: add error state
   return (
-    <div className={hidden ? 'hidden' : ''}>
+    <div className={styles}>
       <label
         htmlFor={htmlFor}
         className="block text-sm font-medium leading-8 text-gray-900"

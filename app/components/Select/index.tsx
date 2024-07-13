@@ -6,12 +6,24 @@ type SelectProps = {
   name: string;
   options: string[];
   value: string;
-  onSelect: (value: string) => void;
+  onSelect: (value: string | string[]) => void;
+  multiple?: true;
 };
 
-export function Select({ label, name, options, value, onSelect }: SelectProps) {
+export function Select({
+  label,
+  name,
+  options,
+  value,
+  onSelect,
+  multiple = false,
+}: SelectProps) {
   const handleSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    onSelect(event.target.value);
+    if (multiple) {
+      onSelect([...value, event.target.value]);
+    } else {
+      event.target.value;
+    }
   };
 
   return (
@@ -23,8 +35,9 @@ export function Select({ label, name, options, value, onSelect }: SelectProps) {
         <select
           id={name}
           name={name}
-          value={capitalize(value)}
+          value={Array.isArray(value) ? value : capitalize(value)}
           onChange={handleSelect}
+          multiple={multiple}
           className="block w-full bg-white p-2.5 rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         >
           {options.map((item, id) => (

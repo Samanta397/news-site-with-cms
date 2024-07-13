@@ -1,7 +1,16 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
-import { Outlet, redirect, useNavigate } from '@remix-run/react';
+import {
+  Links,
+  Meta,
+  Outlet,
+  redirect,
+  Scripts,
+  useNavigate,
+  useRouteError,
+} from '@remix-run/react';
 import { Sidebar } from '~/components/Sidebar';
+import { NotFound } from '~/components/NotFound';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getUserSession(request);
@@ -48,7 +57,7 @@ export default function Dashboard() {
       <Sidebar />
 
       <div className="p-4 sm:ml-64">
-        <div className="p-4 ">
+        <div className="p-4  mt-14 ">
           <Outlet />
         </div>
       </div>
