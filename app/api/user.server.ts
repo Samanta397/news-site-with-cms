@@ -1,8 +1,6 @@
 import { prisma } from './prisma.server';
 import { RegisterForm, Role, UpdateUserData } from '~/types/user.types';
 import CryptoJS from 'crypto-js';
-import { getBindingIdentifiers } from '@babel/types';
-import keys = getBindingIdentifiers.keys;
 
 export async function createUser(data: RegisterForm) {
   try {
