@@ -3,8 +3,8 @@ import { Button } from '~/components/Button';
 import { FormField } from '~/components/FormField';
 import { useState } from 'react';
 import { Select } from '~/components/Select';
-import { Dropdown } from '~/components/Dropdown';
 
+//TODO: add actions with CRUD
 export default function New() {
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
@@ -57,7 +57,7 @@ export default function New() {
             options={tags}
             value={selectedTags}
             onSelect={setSelectedTags}
-            // multiple={true}
+            multiple={true}
           />
           {/*<Dropdown />*/}
         </Card>
@@ -66,7 +66,7 @@ export default function New() {
       <div className={'flex justify-between'}>
         <Button
           label={'Move to trash'}
-          onClick={() => handleDelete(userId)}
+          onClick={() => console.log('Delete')}
           tone={'critical'}
           // disabled={!isAdmin}
         />

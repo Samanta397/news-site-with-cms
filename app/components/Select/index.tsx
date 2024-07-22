@@ -1,13 +1,22 @@
-import { ChangeEvent } from 'react';
-import { capitalize } from '~/utils/capitalize';
+import { useEffect, useState } from 'react';
+
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/react';
+import { twMerge } from 'tailwind-merge';
+import { CheckIcon } from '~/icons/CheckIcon';
+import { ChevronDownIcon } from '~/icons/ChevronDownIcon';
 
 type SelectProps = {
   label: string;
   name: string;
   options: string[];
-  value: string;
+  value: string | string[];
   onSelect: (value: string | string[]) => void;
-  multiple?: true;
+  multiple?: boolean;
 };
 
 export function Select({
@@ -18,33 +27,53 @@ export function Select({
   onSelect,
   multiple = false,
 }: SelectProps) {
-  const handleSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    if (multiple) {
-      onSelect([...value, event.target.value]);
-    } else {
-      event.target.value;
-    }
-  };
+  const [selected, setSelected] = useState<string | string[]>(value);
+
+  useEffect(() => {
+    onSelect(selected);
+  }, [selected]);
 
   return (
     <div>
-      <label className="block text-sm font-medium leading-4 text-gray-900">
+      <label className="block text-sm font-medium leading-4 text-gray-900 mb-2">
         {label}
       </label>
-      <div className="mt-2">
-        <select
-          id={name}
-          name={name}
-          value={Array.isArray(value) ? value : capitalize(value)}
-          onChange={handleSelect}
-          multiple={multiple}
-          className="block w-full bg-white p-2.5 rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      <Listbox value={selected} onChange={setSelected} multiple={multiple}>
+        <ListboxButton
+          className={twMerge(
+            'relative flex justify-between w-full rounded-md border-0 shadow-sm bg-white  py-1.5 pr-3 pl-3 text-left text-sm/6 text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6',
+            'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25',
+          )}
         >
-          {options.map((item, id) => (
-            <option key={`${item}_${id}`}>{item}</option>
+          {multiple ? 'Select' : selected}
+          <ChevronDownIcon
+            className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60"
+            aria-hidden="true"
+          />
+        </ListboxButton>
+        <ListboxOptions
+          anchor="bottom"
+          transition
+          className={twMerge(
+            'w-[var(--button-width)] rounded-md border border-black/5 bg-slate-100 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none max-h-4 overflow-y-scroll scroll-smooth',
+            'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0',
+          )}
+        >
+          {options.map((person) => (
+            <ListboxOption
+              key={person}
+              value={person}
+              className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:black/10 data-[selected]:bg-blue-100 hover:bg-blue-100"
+            >
+              <CheckIcon
+                className={'invisible size-3 group-data-[selected]:visible'}
+              />
+
+              <div className="text-sm/6 black">{person}</div>
+            </ListboxOption>
           ))}
-        </select>
-      </div>
+        </ListboxOptions>
+      </Listbox>
     </div>
   );
 }
