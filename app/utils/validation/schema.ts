@@ -21,7 +21,18 @@ export const RegisterFields = z.object({
   role: z.nativeEnum(Role),
 });
 
+export const NewsFields = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  content: z.string(),
+  author: z.string(),
+  // tags: z.array(z.string()),
+});
+
 export type LoginFields = z.infer<typeof LoginFields>;
 export type RegisterFields = z.infer<typeof RegisterFields>;
+export type NewsFields = z.infer<typeof NewsFields>;
+
 export type LoginFieldsErrors = inferSafeParseErrors<typeof LoginFields>;
 export type RegisterFieldsErrors = inferSafeParseErrors<typeof RegisterFields>;
+export type NewsFieldsErrors = inferSafeParseErrors<typeof NewsFields>;

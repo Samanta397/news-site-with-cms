@@ -6,7 +6,7 @@ type ButtonProps = {
   onClick?: () => void;
   fullWidth?: boolean;
   disabled?: boolean;
-  tone?: 'default' | 'critical';
+  tone?: 'default' | 'critical' | 'success';
 };
 
 export function Button({
@@ -23,6 +23,8 @@ export function Button({
       'bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-indigo-600',
     tone === 'critical' &&
       'bg-red-600 hover:bg-red-500 focus-visible:outline-red-600',
+    tone === 'success' &&
+      'bg-emerald-600 hover:bg-emerald-500 focus-visible:outline-emerald-600',
     fullWidth && 'w-full',
     disabled && 'bg-gray-300 hover:bg-gray-300',
   );

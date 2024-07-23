@@ -1,20 +1,14 @@
 import { Table } from '~/components/Table';
 import { Button } from '~/components/Button';
-import {
-  redirect,
-  useLoaderData,
-  useNavigate,
-  useSubmit,
-} from '@remix-run/react';
+import { useLoaderData, useNavigate } from '@remix-run/react';
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node';
-import { deleteUser, getUser, updateUser } from '~/api/user.server';
-import { RegisterFields } from '~/utils/validation/schema';
-import { getUserSession } from '~/api/auth.server';
-import { capitalize } from '~/utils/capitalize';
-import { Role } from '~/types/user.types';
+import { getNews } from '~/api/news.server';
+import { prepareNews } from '~/utils/prepareNews';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  return json({ news: [] });
+  const news = await getNews();
+
+  return json({ news: prepareNews(news || []) });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -59,8 +53,8 @@ export default function News() {
 
       <Table
         headings={headings}
-        rows={news}
-        onClick={(to: string) => console.log('Click')}
+        rows={news} //TODO: fix type
+        onClick={(to: string) => navigate(to)}
         entityName={'News'}
         emptyMessage={'No news yet'}
       />

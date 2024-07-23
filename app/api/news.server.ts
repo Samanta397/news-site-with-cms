@@ -1,7 +1,7 @@
 import { prisma } from './prisma.server';
 import { NewType } from '~/types/new.types';
 
-export async function createNew(data: NewType) {
+export async function createNew(data: Omit<NewType, 'id'>) {
   try {
     const news = await prisma.news.create({
       data,
@@ -20,6 +20,7 @@ export async function publishNew(id: number) {
       },
       data: {
         pubDate: new Date(),
+        is_graft: false,
       },
     });
     return news;
@@ -28,7 +29,10 @@ export async function publishNew(id: number) {
   }
 }
 
-export async function updateNew(id: number, data: Partial<NewType>) {
+export async function updateNew(
+  id: number,
+  data: Partial<Omit<NewType, 'id'>>,
+) {
   try {
     const news = await prisma.news.update({
       where: {
@@ -36,6 +40,7 @@ export async function updateNew(id: number, data: Partial<NewType>) {
       },
       data,
     });
+    return news;
   } catch (error) {
     console.log('UPDATE NEW ERROR', error);
   }
@@ -87,7 +92,7 @@ export async function getNew(id: number) {
   try {
     const news = await prisma.news.findUnique({
       where: {
-        id,
+        id: id,
       },
     });
     return news;
