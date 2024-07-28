@@ -9,6 +9,7 @@ import styles from './tailwind.css?url';
 import { LinksFunction } from '@remix-run/node';
 import { useRouteError } from '@remix-run/react';
 import { NotFound } from '~/components/NotFound';
+import { ToastContainer } from 'react-toastify';
 
 export const links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: styles }];
@@ -27,6 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <ToastContainer hideProgressBar autoClose={3000} />
       </body>
     </html>
   );

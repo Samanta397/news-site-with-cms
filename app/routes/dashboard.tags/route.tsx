@@ -1,6 +1,6 @@
 import { Button } from '~/components/Button';
 import { Table } from '~/components/Table';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from '~/components/Modal';
 import {
   Form,
@@ -18,12 +18,17 @@ import { Role } from '~/types/user.types';
 import { createTag, deleteTags, getTags, updateTag } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
 import { TagsFields, TagsFieldsErrors } from '~/utils/validation/schema';
+import { ToastifyRoot } from '~/utils/toastifies';
 
 type ActionData = {
   fields: TagsFields;
   errors?: TagsFieldsErrors & {
     error: string;
     status: number;
+  };
+  toast?: {
+    message: string;
+    type: 'success' | 'error';
   };
 };
 
@@ -53,6 +58,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log(fields);
     const ids = fields.ids as string;
     await deleteTags(ids.split(',').map((item) => Number(item)));
+    return json({ toast: { message: 'Tags deleted', type: 'success' } });
   }
 
   if (!result.success) {
@@ -64,11 +70,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (fields.id === 'create') {
     const createdTag = await createTag(fields.tagName);
+    if (createdTag) {
+      return json({ toast: { message: 'Tag created', type: 'success' } });
+    } else {
+      return json({ toast: { message: 'Tag not created', type: 'error' } });
+    }
   } else {
     const updatedTag = await updateTag({
       id: Number(fields.id),
       tagName: fields.tagName,
     });
+    if (updatedTag) {
+      return json({ toast: { message: 'Tag updated', type: 'success' } });
+    } else {
+      return json({ toast: { message: 'Tag not updated', type: 'error' } });
+    }
   }
 
   return null;
@@ -102,7 +118,16 @@ export default function Tags() {
   };
 
   //TODO: add errors to form fields and disable buttons if user is not Admin
-  //TODO: add toast message when tags are delete, updated or created or if error occured
+
+  useEffect(() => {
+    if (actionData && actionData.toast) {
+      // notify on a toast message
+      ToastifyRoot.toast(actionData.toast.message, {
+        type: actionData.toast.type,
+      });
+    }
+    setIsOpen(false);
+  }, [actionData]);
 
   return (
     <div className="flex gap-6 flex-col ">
