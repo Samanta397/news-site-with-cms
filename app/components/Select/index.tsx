@@ -13,9 +13,11 @@ import { ChevronDownIcon } from '~/icons/ChevronDownIcon';
 type SelectProps = {
   label: string;
   name: string;
-  options: string[];
-  value: string | string[];
-  onSelect: (value: string | string[]) => void;
+  options: { id: string; value: string }[];
+  value: { id: string; value: string } | { id: string; value: string }[];
+  onSelect: (
+    value: { id: string; value: string } | { id: string; value: string }[],
+  ) => void;
   multiple?: boolean;
 };
 
@@ -27,7 +29,9 @@ export function Select({
   onSelect,
   multiple = false,
 }: SelectProps) {
-  const [selected, setSelected] = useState<string | string[]>(value);
+  const [selected, setSelected] = useState<
+    { id: string; value: string } | { id: string; value: string }[]
+  >(value);
 
   useEffect(() => {
     onSelect(selected);
@@ -45,7 +49,7 @@ export function Select({
             'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25',
           )}
         >
-          {multiple ? 'Select' : selected}
+          {multiple || Array.isArray(selected) ? 'Select' : selected.value}
           <ChevronDownIcon
             className="group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60"
             aria-hidden="true"
@@ -59,17 +63,17 @@ export function Select({
             'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0',
           )}
         >
-          {options.map((person) => (
+          {options.map((item) => (
             <ListboxOption
-              key={person}
-              value={person}
+              key={item.id}
+              value={item}
               className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:black/10 data-[selected]:bg-blue-100 hover:bg-blue-100"
             >
               <CheckIcon
                 className={'invisible size-3 group-data-[selected]:visible'}
               />
 
-              <div className="text-sm/6 black">{person}</div>
+              <div className="text-sm/6 black">{item.value}</div>
             </ListboxOption>
           ))}
         </ListboxOptions>

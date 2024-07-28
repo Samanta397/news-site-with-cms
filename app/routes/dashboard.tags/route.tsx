@@ -1,3 +1,159 @@
+import { Button } from '~/components/Button';
+import { Table } from '~/components/Table';
+import React, { useState } from 'react';
+import { Modal } from '~/components/Modal';
+import {
+  Form,
+  json,
+  useActionData,
+  useLoaderData,
+  useSubmit,
+} from '@remix-run/react';
+import { FormField } from '~/components/FormField';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { getUserSession } from '~/api/auth.server';
+import { getUser } from '~/api/user.server';
+import { capitalize } from '~/utils/capitalize';
+import { Role } from '~/types/user.types';
+import { createTag, deleteTags, getTags, updateTag } from '~/api/tags.server';
+import { prepareTags } from '~/utils/prepareTags';
+import { TagsFields, TagsFieldsErrors } from '~/utils/validation/schema';
+
+type ActionData = {
+  fields: TagsFields;
+  errors?: TagsFieldsErrors & {
+    error: string;
+    status: number;
+  };
+};
+
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const session = await getUserSession(request);
+
+  const sessionUser = await getUser(Number(session.get('userId')));
+  const isAdmin = sessionUser
+    ? capitalize(sessionUser.role) === Role.ADMIN
+    : false;
+
+  const tags = await getTags();
+
+  return json({ tags: prepareTags(tags || []), isAdmin });
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const fields = Object.fromEntries(formData.entries()) as TagsFields;
+  const result = TagsFields.safeParse(fields);
+
+  if (
+    'actionType' in fields &&
+    fields.actionType === 'delete' &&
+    'ids' in fields
+  ) {
+    console.log(fields);
+    const ids = fields.ids as string;
+    await deleteTags(ids.split(',').map((item) => Number(item)));
+  }
+
+  if (!result.success) {
+    return json({
+      fields,
+      errors: result.error.flatten(),
+    });
+  }
+
+  if (fields.id === 'create') {
+    const createdTag = await createTag(fields.tagName);
+  } else {
+    const updatedTag = await updateTag({
+      id: Number(fields.id),
+      tagName: fields.tagName,
+    });
+  }
+
+  return null;
+};
+
 export default function Tags() {
-  return <div>Tags page</div>;
+  const { tags, isAdmin } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>() as ActionData;
+  const submit = useSubmit();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [tagName, setTagName] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [editTag, setEditTag] = useState<string>('');
+
+  const headings = [{ title: 'Tag name' }];
+
+  const handleDelete = (ids: string[]) => {
+    submit(
+      {
+        ids,
+        actionType: 'delete',
+      },
+      {
+        replace: true,
+        method: 'POST',
+      },
+    );
+
+    setSelectedTags([]);
+  };
+
+  //TODO: add errors to form fields and disable buttons if user is not Admin
+  //TODO: add toast message when tags are delete, updated or created or if error occured
+
+  return (
+    <div className="flex gap-6 flex-col ">
+      <div className={'flex justify-end'}>
+        <Button label={'Create tags'} onClick={() => setIsOpen(true)} />
+      </div>
+
+      <Table
+        headings={headings}
+        rows={tags}
+        onClick={(to: string) => {
+          setEditTag(to);
+          setIsOpen(true);
+        }}
+        entityName={'Tags'}
+        emptyMessage={'No tags yet'}
+        selectable={true}
+        selected={selectedTags}
+        onSelect={setSelectedTags}
+        bulkAction={{
+          label: 'Delete',
+          onAction: handleDelete,
+        }}
+      />
+
+      <Modal isOpen={isOpen} onClose={setIsOpen}>
+        <Form className="space-y-4" method="post">
+          <FormField
+            name="id"
+            htmlFor="id"
+            label="Id"
+            value={editTag || 'create'}
+            required
+            hidden
+          />
+          <FormField
+            name="tagName"
+            htmlFor="tagName"
+            label="Tag name"
+            value={
+              tagName || tags.find((item) => item.id === editTag)?.value || ''
+            }
+            required
+            onChange={setTagName}
+          />
+
+          <div className={'flex justify-end'}>
+            <Button type={'submit'} label={'Save'} />
+          </div>
+        </Form>
+      </Modal>
+    </div>
+  );
 }

@@ -41,6 +41,20 @@ export async function deleteTag(id: number) {
   }
 }
 
+export async function deleteTags(ids: number[]) {
+  try {
+    await prisma.tag.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  } catch (error) {
+    console.log('DELETE TAG ERROR', error);
+  }
+}
+
 export async function getTag(id: number) {
   try {
     const tag = await prisma.tag.delete({

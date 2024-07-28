@@ -107,9 +107,9 @@ export default function New() {
   const [title, setTitle] = useState<string>(news?.title || '');
   const [content, setContent] = useState<string>(news?.content || '');
   const [author, setAuthor] = useState<string>(news?.author || '');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-  // const tags = ['Sport', 'Polics', 'USA', 'Elect'];
+  const [selectedTags, setSelectedTags] = useState<
+    { id: string; value: string }[]
+  >([]);
 
   //TODO: add errors to form fields and disable buttons if user is not Admin
 

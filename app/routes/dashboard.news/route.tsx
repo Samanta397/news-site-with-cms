@@ -53,7 +53,7 @@ export default function News() {
 
       <Table
         headings={headings}
-        rows={news} //TODO: fix type
+        rows={news}
         onClick={(to: string) => navigate(to)}
         entityName={'News'}
         emptyMessage={'No news yet'}
