@@ -17,7 +17,6 @@ import { NewsFields, NewsFieldsErrors } from '~/utils/validation/schema';
 import {
   createNew,
   getNew,
-  publishNew,
   restoreNew,
   softDeleteNew,
   updateNew,
@@ -27,6 +26,7 @@ import { capitalize } from '~/utils/capitalize';
 import { Role } from '~/types/user.types';
 import { getTags } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
+import { Checkbox } from '~/components/Checkbox';
 
 type ActionData = {
   fields: NewsFields;
@@ -64,14 +64,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries()) as NewsFields;
   const result = NewsFields.safeParse(fields);
-
   if ('actionType' in fields && fields.actionType === 'delete') {
     await softDeleteNew(Number(fields.id));
   }
 
-  if ('actionType' in fields && fields.actionType === 'publish') {
-    await publishNew(Number(fields.id));
-  }
+  // if ('actionType' in fields && fields.actionType === 'publish') {
+  //   await publishNew(Number(fields.id));
+  // }
 
   if ('actionType' in fields && fields.actionType === 'restore') {
     await restoreNew(Number(fields.id));
@@ -84,13 +83,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
+  const data = {
+    ...fields,
+    is_graft: !fields.is_publish,
+    is_hidden: !!fields.is_hidden,
+  };
+
   if (fields.id === 'create') {
-    const createdNew = await createNew({ ...fields, is_graft: true });
+    const createdNew = await createNew(data);
     if (createdNew) {
       return redirect(`/dashboard/news/${createdNew.id}`);
     }
   } else {
-    const updatedNew = await updateNew(Number(fields.id), fields);
+    const updatedNew = await updateNew(Number(data.id), data);
     if (updatedNew) {
       return redirect(`/dashboard/news/${updatedNew.id}`);
     }
@@ -107,6 +112,9 @@ export default function New() {
   const [title, setTitle] = useState<string>(news?.title || '');
   const [content, setContent] = useState<string>(news?.content || '');
   const [author, setAuthor] = useState<string>(news?.author || '');
+  const [isPublish, setIsPublish] = useState<boolean>(false);
+  const [isHidden, setIsHidden] = useState<boolean>(false);
+  // const [isDraft, setIsDraft] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<
     { id: string; value: string }[]
   >([]);
@@ -126,18 +134,18 @@ export default function New() {
     );
   };
 
-  const handlePublish = (id: string) => {
-    submit(
-      {
-        id,
-        actionType: 'publish',
-      },
-      {
-        replace: true,
-        method: 'POST',
-      },
-    );
-  };
+  // const handlePublish = (id: string) => {
+  //   submit(
+  //     {
+  //       id,
+  //       actionType: 'publish',
+  //     },
+  //     {
+  //       replace: true,
+  //       method: 'POST',
+  //     },
+  //   );
+  // };
 
   const handleRestore = (id: string) => {
     submit(
@@ -154,11 +162,11 @@ export default function New() {
 
   return (
     <div className={'flex flex-col gap-10'}>
-      {news && (
-        <div className={'flex justify-end'}>
-          <Button label={'Publish'} onClick={() => handlePublish(newsId)} />
-        </div>
-      )}
+      {/*{news && (*/}
+      {/*  <div className={'flex justify-end'}>*/}
+      {/*    <Button label={'Publish'} onClick={() => handlePublish(newsId)} />*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       <Form className="space-y-4" method="post">
         <div className={'flex gap-10'}>
@@ -208,6 +216,26 @@ export default function New() {
               onSelect={setSelectedTags}
               multiple={true}
             />
+
+            <Checkbox
+              name={'is_publish'}
+              htmlFor={'is_publish'}
+              label={'Publish'}
+              checked={isPublish}
+              onChange={() => setIsPublish((prevState) => !prevState)}
+            />
+            <Checkbox
+              name={'is_hidden'}
+              htmlFor={'is_hidden'}
+              label={'Hidden mode'}
+              checked={isHidden}
+              onChange={() => setIsHidden((prevState) => !prevState)}
+            />
+            {/*<Checkbox*/}
+            {/*  name={'is_graft'}*/}
+            {/*  htmlFor={'is_graft'}*/}
+            {/*  label={'Draft mode'}*/}
+            {/*/>*/}
           </Card>
         </div>
         <div className={'flex justify-between'}>
@@ -219,7 +247,10 @@ export default function New() {
             tone={news?.is_deleted ? 'success' : 'critical'}
             disabled={!news} //!isAdmin
           />
-          <Button type={'submit'} label={'Save'} />
+          <Button
+            type={'submit'}
+            label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
+          />
         </div>
       </Form>
     </div>

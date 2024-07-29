@@ -4,7 +4,10 @@ import { NewType } from '~/types/new.types';
 export async function createNew(data: Omit<NewType, 'id'>) {
   try {
     const news = await prisma.news.create({
-      data,
+      data: {
+        ...data,
+        pubDate: data.is_graft ? null : new Date(),
+      },
     });
     return news;
   } catch (error) {
@@ -38,7 +41,10 @@ export async function updateNew(
       where: {
         id,
       },
-      data,
+      data: {
+        ...data,
+        pubDate: data.is_graft ? null : new Date(),
+      },
     });
     return news;
   } catch (error) {

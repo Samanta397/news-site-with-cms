@@ -6,7 +6,7 @@ export const prepareNews = (news: PrismaNew[]) => {
     id: item.id.toString(),
     title: item.title,
     author: item.author || '',
-    status: item.pubDate ? 'Published' : 'Draft',
+    status: item.is_deleted ? 'Deleted' : item.pubDate ? 'Published' : 'Draft',
     date: format(new Date(item.updatedAt), 'dd.mm.yyyy'),
   }));
 };
