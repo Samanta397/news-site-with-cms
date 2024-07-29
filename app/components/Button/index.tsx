@@ -31,7 +31,7 @@ export function Button({
     tone === 'success' &&
       'bg-emerald-600 hover:bg-emerald-500 focus-visible:outline-emerald-600',
     tone === 'none' &&
-      'bg-transparent hover:bg-slate-200 text-slate-800 shadow-none',
+      'h-fit bg-transparent hover:bg-slate-200 text-slate-800 shadow-none',
     bulk && 'px-3 py-0',
 
     fullWidth && 'w-full',

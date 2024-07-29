@@ -27,6 +27,7 @@ import { Role } from '~/types/user.types';
 import { getTags } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
 import { Checkbox } from '~/components/Checkbox';
+import { DropZone } from '~/components/DropZone';
 
 type ActionData = {
   fields: NewsFields;
@@ -196,6 +197,8 @@ export default function New() {
               required
               onChange={setContent}
             />
+
+            <DropZone label={'Image'} htmlFor={'image'} />
           </Card>
 
           <Card width={'w-1/4'} gap>
