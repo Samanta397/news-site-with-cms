@@ -1,30 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '~/components/Button';
 import { CrossIcon } from '~/icons/CrossIcon';
 
 type DropZoneType = {
+  name: string;
   label: string;
   htmlFor: string;
+  file: string | null;
 };
 
-export function DropZone({ label, htmlFor }: DropZoneType) {
+export function DropZone({ name, label, htmlFor, file }: DropZoneType) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(file);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedFile(e.target.files[0]);
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedImage(reader.result as string);
-      };
-      reader.readAsDataURL(e.target.files[0]);
+      const src = URL.createObjectURL(e.target.files[0]);
+      setSelectedImage(src);
     }
-  };
-
-  const handleUpload = () => {
-    console.log(selectedFile);
   };
 
   const handleRemove = () => {
@@ -32,18 +27,14 @@ export function DropZone({ label, htmlFor }: DropZoneType) {
     setSelectedImage(null);
   };
 
-  console.log(selectedFile);
-
   return (
     <div className="w-full">
-      <label
-        htmlFor={htmlFor}
-        className="block text-sm font-medium leading-8 text-gray-900"
-      >
+      <label className="block text-sm font-medium leading-8 text-gray-900">
         {label}
       </label>
 
       <label
+        htmlFor={htmlFor}
         className={`flex justify-center ${!selectedFile && 'w-full'} h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none`}
       >
         {!selectedImage && (
@@ -70,24 +61,23 @@ export function DropZone({ label, htmlFor }: DropZoneType) {
             </span>
             <input
               type="file"
-              name="file_upload"
+              name={name}
               className="hidden"
               onChange={handleFileChange}
+              accept="image/*"
+              id={htmlFor}
             />
           </>
         )}
 
         {selectedImage && (
           <div className="mt-4 flex justify-between">
-            {/*<p className="font-semibold">Selected File:</p>*/}
-
             <img
               src={selectedImage}
               alt="Selected"
               className="max-w-56 max-h-24 rounded-md"
             />
             <Button tone={'none'} icon={<CrossIcon />} onClick={handleRemove} />
-            {/*<p>{selectedFile.name}</p>*/}
           </div>
         )}
       </label>

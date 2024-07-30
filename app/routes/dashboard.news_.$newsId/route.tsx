@@ -28,6 +28,9 @@ import { getTags } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
 import { Checkbox } from '~/components/Checkbox';
 import { DropZone } from '~/components/DropZone';
+import { getObject, uploadImage } from '~/api/minio.server';
+import * as process from 'node:process';
+import { saveMedia } from '~/api/media.server';
 
 type ActionData = {
   fields: NewsFields;
@@ -57,7 +60,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return json({ newsId, news: null, tags: prepareTags(tags || []), isAdmin });
   } else {
     const news = await getNew(Number(newsId));
-    return json({ newsId, news, tags: prepareTags(tags || []), isAdmin });
+    const media = await getObject(
+      process.env.MINIO_BUCKET_NAME || '',
+      news?.media?.file_name || '',
+    );
+
+    return json({
+      newsId,
+      news,
+      tags: prepareTags(tags || []),
+      isAdmin,
+      media,
+    });
   }
 };
 
@@ -65,13 +79,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries()) as NewsFields;
   const result = NewsFields.safeParse(fields);
+
   if ('actionType' in fields && fields.actionType === 'delete') {
     await softDeleteNew(Number(fields.id));
   }
-
-  // if ('actionType' in fields && fields.actionType === 'publish') {
-  //   await publishNew(Number(fields.id));
-  // }
 
   if ('actionType' in fields && fields.actionType === 'restore') {
     await restoreNew(Number(fields.id));
@@ -84,10 +95,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
+  const imageName = await uploadImage(
+    process.env.MINIO_BUCKET_NAME || 'default',
+    fields.image,
+  );
+
+  const createdImage = await saveMedia(imageName);
+
   const data = {
-    ...fields,
+    id: Number(fields.id),
+    content: fields.content,
+    title: fields.title,
+    author: fields.author,
     is_graft: !fields.is_publish,
     is_hidden: !!fields.is_hidden,
+    media_id: createdImage?.id || null,
   };
 
   if (fields.id === 'create') {
@@ -96,7 +118,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return redirect(`/dashboard/news/${createdNew.id}`);
     }
   } else {
-    const updatedNew = await updateNew(Number(data.id), data);
+    const updatedNew = await updateNew(data.id, data);
     if (updatedNew) {
       return redirect(`/dashboard/news/${updatedNew.id}`);
     }
@@ -106,7 +128,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function New() {
-  const { newsId, news, tags, isAdmin } = useLoaderData<typeof loader>();
+  const { newsId, news, tags, isAdmin, media } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
@@ -115,7 +137,6 @@ export default function New() {
   const [author, setAuthor] = useState<string>(news?.author || '');
   const [isPublish, setIsPublish] = useState<boolean>(false);
   const [isHidden, setIsHidden] = useState<boolean>(false);
-  // const [isDraft, setIsDraft] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<
     { id: string; value: string }[]
   >([]);
@@ -135,19 +156,6 @@ export default function New() {
     );
   };
 
-  // const handlePublish = (id: string) => {
-  //   submit(
-  //     {
-  //       id,
-  //       actionType: 'publish',
-  //     },
-  //     {
-  //       replace: true,
-  //       method: 'POST',
-  //     },
-  //   );
-  // };
-
   const handleRestore = (id: string) => {
     submit(
       {
@@ -163,13 +171,7 @@ export default function New() {
 
   return (
     <div className={'flex flex-col gap-10'}>
-      {/*{news && (*/}
-      {/*  <div className={'flex justify-end'}>*/}
-      {/*    <Button label={'Publish'} onClick={() => handlePublish(newsId)} />*/}
-      {/*  </div>*/}
-      {/*)}*/}
-
-      <Form className="space-y-4" method="post">
+      <Form className="space-y-4" method="post" encType="multipart/form-data">
         <div className={'flex gap-10'}>
           <Card width={'w-3/4'} gap>
             <FormField
@@ -198,7 +200,12 @@ export default function New() {
               onChange={setContent}
             />
 
-            <DropZone label={'Image'} htmlFor={'image'} />
+            <DropZone
+              name={'image'}
+              label={'Image'}
+              htmlFor={'image'}
+              file={media}
+            />
           </Card>
 
           <Card width={'w-1/4'} gap>
@@ -234,11 +241,6 @@ export default function New() {
               checked={isHidden}
               onChange={() => setIsHidden((prevState) => !prevState)}
             />
-            {/*<Checkbox*/}
-            {/*  name={'is_graft'}*/}
-            {/*  htmlFor={'is_graft'}*/}
-            {/*  label={'Draft mode'}*/}
-            {/*/>*/}
           </Card>
         </div>
         <div className={'flex justify-between'}>

@@ -25,9 +25,10 @@ export const NewsFields = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   content: z.string(),
-  author: z.string(),
-  is_publish: z.string(),
-  is_hidden: z.string(),
+  author: z.string().nullish(),
+  is_publish: z.string().nullish(),
+  is_hidden: z.string().nullish(),
+  image: z.instanceof(File).nullish(),
 
   // tags: z.array(z.string()),
 });

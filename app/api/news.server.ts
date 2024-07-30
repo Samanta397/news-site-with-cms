@@ -100,6 +100,9 @@ export async function getNew(id: number) {
       where: {
         id: id,
       },
+      include: {
+        media: true,
+      },
     });
     return news;
   } catch (error) {

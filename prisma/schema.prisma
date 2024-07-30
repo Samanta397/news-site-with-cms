@@ -79,7 +79,7 @@ model TagsOnNews {
 
 model Media {
   id             Int           @id @default(autoincrement())
-  link           String        @unique
+  file_name      String        @unique
   altText        String?
 
   createdAt      DateTime      @default(now())
