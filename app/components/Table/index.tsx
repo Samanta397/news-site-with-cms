@@ -59,10 +59,11 @@ export function Table({
                   name={'bulk-action'}
                   htmlFor={'bulk-action'}
                   checked={
-                    selectedAll ||
-                    rows
-                      .map((item) => item.id)
-                      .every((item) => selected?.includes(item))
+                    rows.length > 0 &&
+                    (selectedAll ||
+                      rows
+                        .map((item) => item.id)
+                        .every((item) => selected?.includes(item)))
                   }
                   onChange={() => setSelectedAll((prevState) => !prevState)}
                 />
@@ -139,7 +140,7 @@ export function Table({
           {rows.length === 0 && (
             <tr>
               <td
-                colSpan={headings.length}
+                colSpan={selectable ? headings.length + 1 : headings.length}
                 className={'text-center bg-white py-10 text-2xl font-bold'}
               >
                 {emptyMessage ? emptyMessage : `${entityName} not found`}

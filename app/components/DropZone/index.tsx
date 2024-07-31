@@ -6,19 +6,22 @@ type DropZoneType = {
   name: string;
   label: string;
   htmlFor: string;
-  file: string | null;
+  media?: string | null;
 };
 
-export function DropZone({ name, label, htmlFor, file }: DropZoneType) {
+export function DropZone({ name, label, htmlFor, media = null }: DropZoneType) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(file);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const target = e.target.files[0];
+      setSelectedFile(target);
+      // onChange(target);
 
-      const src = URL.createObjectURL(e.target.files[0]);
-      setSelectedImage(src);
+      // const src = URL.createObjectURL(target);
+      // console.log('src', src);
+      // setSelectedImage(src);
     }
   };
 
@@ -26,6 +29,10 @@ export function DropZone({ name, label, htmlFor, file }: DropZoneType) {
     setSelectedFile(null);
     setSelectedImage(null);
   };
+
+  useEffect(() => {
+    setSelectedImage(media);
+  }, [media]);
 
   return (
     <div className="w-full">

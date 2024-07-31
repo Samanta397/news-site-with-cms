@@ -57,7 +57,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const tags = await getTags();
 
   if (newsId === 'create') {
-    return json({ newsId, news: null, tags: prepareTags(tags || []), isAdmin });
+    return json({
+      newsId,
+      news: null,
+      tags: prepareTags(tags || []),
+      isAdmin,
+      media: null,
+    });
   } else {
     const news = await getNew(Number(newsId));
     const media = await getObject(
@@ -67,7 +73,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
     return json({
       newsId,
-      news,
+      news: news,
       tags: prepareTags(tags || []),
       isAdmin,
       media,
@@ -103,7 +109,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const createdImage = await saveMedia(imageName);
 
   const data = {
-    id: Number(fields.id),
+    id: fields.id,
     content: fields.content,
     title: fields.title,
     author: fields.author,
@@ -113,12 +119,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
 
   if (fields.id === 'create') {
-    const createdNew = await createNew(data);
+    const { id, ...createData } = data;
+    const createdNew = await createNew(createData);
     if (createdNew) {
       return redirect(`/dashboard/news/${createdNew.id}`);
     }
   } else {
-    const updatedNew = await updateNew(data.id, data);
+    const { id, ...updateData } = data;
+    const updatedNew = await updateNew(Number(id), updateData);
     if (updatedNew) {
       return redirect(`/dashboard/news/${updatedNew.id}`);
     }
@@ -140,7 +148,6 @@ export default function New() {
   const [selectedTags, setSelectedTags] = useState<
     { id: string; value: string }[]
   >([]);
-
   //TODO: add errors to form fields and disable buttons if user is not Admin
 
   const handleDelete = (id: string) => {
@@ -204,7 +211,7 @@ export default function New() {
               name={'image'}
               label={'Image'}
               htmlFor={'image'}
-              file={media}
+              media={media}
             />
           </Card>
 

@@ -43,6 +43,9 @@ model News {
   is_hidden      Boolean     @default(false)
   is_deleted     Boolean     @default(false)
 
+  link           String?
+  source_guid    String?
+
   createdAt      DateTime    @default(now())
   updatedAt      DateTime   @updatedAt
 
@@ -50,6 +53,8 @@ model News {
   media_id       Int?        @unique
   tags           TagsOnNews[]
 
+  source         NewsSource? @relation(fields: [source_id], references: [id])
+  source_id      Int?        @unique
 
   @@map("news")
 }
@@ -62,6 +67,7 @@ model Tag {
   updatedAt     DateTime      @updatedAt
 
   news          TagsOnNews[]
+  news_sources  TagsOnSourceNews[]
 
   @@map("tags")
 }
@@ -77,6 +83,17 @@ model TagsOnNews {
   @@map("tags_on_news")
 }
 
+model TagsOnSourceNews {
+  source           NewsSource    @relation(fields: [source_id], references: [id], onDelete: Cascade)
+  source_id        Int
+  tag              Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id           Int
+
+  @@id([source_id, tag_id])
+
+  @@map("tags_on_source_news")
+}
+
 model Media {
   id             Int           @id @default(autoincrement())
   file_name      String        @unique
@@ -88,4 +105,25 @@ model Media {
   news          News[]
 
   @@map("media")
+}
+
+model NewsSource {
+    id                    Int           @id @default(autoincrement())
+    url                   String     @unique
+    name                  String
+    has_title             Boolean   @default(true)
+    has_content           Boolean   @default(true)
+    has_author            Boolean   @default(true)
+    has_pub_date          Boolean   @default(true)
+    is_active             Boolean   @default(true)
+    import_interval       Int       @default(5)
+    next_import_time      DateTime?
+    last_import_time      DateTime?
+    tags                  TagsOnSourceNews[]
+    news                  News[]
+
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+
+    @@map("news_source")
 }

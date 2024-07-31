@@ -1,13 +1,17 @@
-import { ChangeEvent } from 'react';
+import {
+  ChangeEvent,
+  HTMLInputTypeAttribute,
+  InputHTMLAttributes,
+} from 'react';
 import { twMerge } from 'tailwind-merge';
 
 interface FormFieldProps {
   name: string;
   htmlFor: string;
   label: string;
-  type?: string;
-  value: string;
-  onChange?: (value: string) => void;
+  type?: HTMLInputTypeAttribute;
+  value: string | number;
+  onChange?: (value: any) => void;
   required?: boolean;
   hidden?: boolean;
 }
@@ -23,7 +27,11 @@ export function FormField({
   hidden = false,
 }: FormFieldProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
+    if (type === 'number') {
+      onChange(Number(event.target.value));
+    } else {
+      onChange(event.target.value);
+    }
   };
 
   const styles = twMerge('w-full', hidden && 'hidden');

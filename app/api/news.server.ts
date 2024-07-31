@@ -119,3 +119,17 @@ export async function getNews() {
     console.log('GET NEWS ERROR', error);
   }
 }
+
+export async function getRssNews(title?: string, guid?: string) {
+  try {
+    const news = await prisma.news.findFirst({
+      where: {
+        title: title,
+        source_guid: guid,
+      },
+    });
+    return news;
+  } catch (error) {
+    console.log('GET RSS NEW ERROR', error);
+  }
+}

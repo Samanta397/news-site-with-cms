@@ -47,7 +47,6 @@ export async function uploadImage(
         file.size,
         {
           'Content-Type': file.type,
-          'X-Amz-Meta-Testing': 1234,
         },
       );
       return destinationObject;
@@ -61,6 +60,9 @@ export async function uploadImage(
 
 export async function getObject(bucketName: string, objectName: string) {
   try {
+    if (!bucketName || !objectName) {
+      return null;
+    }
     const promise: Promise<string | undefined> = new Promise(
       (resolve, reject) => {
         let buffers: Buffer[] = [];
