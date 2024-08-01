@@ -10,6 +10,8 @@ export type RssType = {
   has_pub_date?: boolean;
   is_active?: boolean;
   import_interval: number;
+  last_import_time?: Date;
+  next_import_time?: Date;
 };
 
 export type PrismaSource =

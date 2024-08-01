@@ -90,6 +90,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     has_pub_date: !!fields.has_pub_date,
     is_active: !fields.is_active,
     import_interval: Number(fields.import_interval),
+    // next_import_time: !fields.is_active
   };
 
   if (fields.id === 'create') {

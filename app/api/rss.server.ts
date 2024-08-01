@@ -12,7 +12,10 @@ export async function createNewsSource(data: Omit<RssType, 'id'>) {
   }
 }
 
-export async function updateNewsSource(id: number, data: Omit<RssType, 'id'>) {
+export async function updateNewsSource(
+  id: number,
+  data: Partial<Omit<RssType, 'id'>>,
+) {
   try {
     const source = await prisma.newsSource.update({
       where: {

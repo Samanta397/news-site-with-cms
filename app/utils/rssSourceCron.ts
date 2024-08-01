@@ -1,7 +1,7 @@
-import { getActiveNewsSources } from '~/api/rss.server';
+import { getActiveNewsSources, updateNewsSource } from '~/api/rss.server';
 
 import Parser from 'rss-parser';
-import { getRssNews } from '~/api/news.server';
+import { createNew, getRssNews } from '~/api/news.server';
 
 const parser = new Parser();
 
@@ -20,8 +20,6 @@ export async function importRssSources() {
         source.import_interval * 60 * 1000
       : true;
 
-    // console.log('isImportTimeValid', isImportTimeValid);
-
     if (!isImportTimeValid) {
       console.log(
         'Import skipped for source ',
@@ -37,16 +35,24 @@ export async function importRssSources() {
       const rssNews = await getRssNews(item.title, item.guid);
 
       if (!rssNews) {
-        //TODO: create news
+        const news = await createNew({
+          title: item.title || source.name,
+          content: source.has_content ? item.content : null,
+          author: source.has_author ? item.author : null,
+          pubDate:
+            source.has_pub_date && item.pubDate ? new Date(item.pubDate) : null,
+          link: source.has_content ? item.content : null,
+          source_guid: item.guid || null,
+        });
       }
-      //TODO: update source last and next import time
     }
-    //
-    feed.items.forEach((item: any) => {
-      console.log(item);
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    });
 
-    // console.log(feed.items[0]);
+    await updateNewsSource(source.id, {
+      last_import_time: new Date(),
+      next_import_time: new Date(
+        new Date().getTime() + source.import_interval * 60 * 1000,
+      ),
+    });
+    console.log('Source Updated');
   }
 }
