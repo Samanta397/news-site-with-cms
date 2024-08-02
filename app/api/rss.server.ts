@@ -56,13 +56,51 @@ export async function getNewsSource(id: number) {
   }
 }
 
-export async function getNewsSources() {
+export async function getNewsSources(page: number = 1) {
   try {
-    const sources = await prisma.newsSource.findMany();
+    const pageSize = 10;
+    const offset = (page - 1) * pageSize;
+    const sources = await prisma.newsSource.findMany({
+      take: pageSize,
+      skip: offset,
+    });
 
-    return sources;
+    const count = await prisma.newsSource.count();
+
+    if (!sources || !count) {
+      return {
+        sources: [],
+        paginationInfo: {
+          pages: 1,
+          page: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+    }
+
+    const pages = Math.ceil(count / pageSize);
+
+    return {
+      sources,
+      paginationInfo: {
+        pages,
+        page,
+        hasNextPage: page < pages,
+        hasPreviousPage: page > 1,
+      },
+    };
   } catch (error) {
     console.log('UPDATE NEWS SOURCE ERROR', error);
+    return {
+      sources: [],
+      paginationInfo: {
+        pages: 1,
+        page: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    };
   }
 }
 

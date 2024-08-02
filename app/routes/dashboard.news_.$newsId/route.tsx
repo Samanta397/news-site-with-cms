@@ -2,7 +2,7 @@ import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
 import { FormField } from '~/components/FormField';
 import { useState } from 'react';
-import { Select } from '~/components/Select';
+import { Select, SelectItemType } from '~/components/Select';
 import {
   Form,
   json,
@@ -24,7 +24,7 @@ import {
 import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
 import { Role } from '~/types/user.types';
-import { getTags } from '~/api/tags.server';
+import { getAllTags, getTags } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
 import { Checkbox } from '~/components/Checkbox';
 import { DropZone } from '~/components/DropZone';
@@ -54,7 +54,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  const tags = await getTags();
+  const tags = await getAllTags();
 
   if (newsId === 'create') {
     return json({
@@ -146,7 +146,7 @@ export default function New() {
   const [isPublish, setIsPublish] = useState<boolean>(false);
   const [isHidden, setIsHidden] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<
-    { id: string; value: string }[]
+    SelectItemType | SelectItemType[]
   >([]);
   //TODO: add errors to form fields and disable buttons if user is not Admin
 

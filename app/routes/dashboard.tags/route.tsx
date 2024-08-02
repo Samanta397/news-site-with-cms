@@ -7,6 +7,7 @@ import {
   json,
   useActionData,
   useLoaderData,
+  useNavigate,
   useSubmit,
 } from '@remix-run/react';
 import { FormField } from '~/components/FormField';
@@ -40,9 +41,14 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  const tags = await getTags();
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
+  const sortBy = url.searchParams.get('sortBy') || 'desc';
+  const searchQuery = url.searchParams.get('query') || '';
 
-  return json({ tags: prepareTags(tags || []), isAdmin });
+  const { tags, paginationInfo } = await getTags(page);
+
+  return json({ tags: prepareTags(tags || []), isAdmin, paginationInfo });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -91,9 +97,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Tags() {
-  const { tags, isAdmin } = useLoaderData<typeof loader>();
+  const { tags, isAdmin, paginationInfo } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [tagName, setTagName] = useState('');
@@ -150,6 +157,14 @@ export default function Tags() {
         bulkAction={{
           label: 'Delete',
           onAction: handleDelete,
+        }}
+        pagination={{
+          hasNext: paginationInfo.hasNextPage,
+          hasPrevious: paginationInfo.hasPreviousPage,
+          onNext: () =>
+            navigate(`/dashboard/tags?page=${paginationInfo.page + 1}`),
+          onPrevious: () =>
+            navigate(`/dashboard/tags?page=${paginationInfo.page - 1}`),
         }}
       />
 

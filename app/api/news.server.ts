@@ -109,14 +109,52 @@ export async function getNew(id: number) {
     console.log('GET NEW ERROR', error);
   }
 }
-export async function getNews() {
-  //TODO: add pagination, filtering, searching
-  const news = await prisma.news.findMany();
-
-  return news;
+export async function getNews(page: number = 1) {
   try {
+    //TODO: add pagination, filtering, searching
+    const pageSize = 10;
+    const offset = (page - 1) * pageSize;
+    const news = await prisma.news.findMany({
+      take: pageSize,
+      skip: offset,
+    });
+
+    const count = await prisma.news.count();
+
+    if (!news || !count) {
+      return {
+        news: [],
+        paginationInfo: {
+          pages: 1,
+          page: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+    }
+
+    const pages = Math.ceil(count / pageSize);
+
+    return {
+      news,
+      paginationInfo: {
+        pages,
+        page,
+        hasNextPage: page < pages,
+        hasPreviousPage: page > 1,
+      },
+    };
   } catch (error) {
     console.log('GET NEWS ERROR', error);
+    return {
+      news: [],
+      paginationInfo: {
+        pages: 1,
+        page: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    };
   }
 }
 

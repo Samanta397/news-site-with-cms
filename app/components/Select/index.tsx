@@ -10,14 +10,14 @@ import { twMerge } from 'tailwind-merge';
 import { CheckIcon } from '~/icons/CheckIcon';
 import { ChevronDownIcon } from '~/icons/ChevronDownIcon';
 
+export type SelectItemType = { id: string; value: string };
+
 type SelectProps = {
   label: string;
   name: string;
-  options: { id: string; value: string }[];
-  value: { id: string; value: string } | { id: string; value: string }[];
-  onSelect: (
-    value: { id: string; value: string } | { id: string; value: string }[],
-  ) => void;
+  options: SelectItemType[];
+  value: SelectItemType | SelectItemType[];
+  onSelect: (value: SelectItemType | SelectItemType[]) => void;
   multiple?: boolean;
 };
 
@@ -29,9 +29,9 @@ export function Select({
   onSelect,
   multiple = false,
 }: SelectProps) {
-  const [selected, setSelected] = useState<
-    { id: string; value: string } | { id: string; value: string }[]
-  >(value);
+  const [selected, setSelected] = useState<SelectItemType | SelectItemType[]>(
+    value,
+  );
 
   useEffect(() => {
     onSelect(selected);

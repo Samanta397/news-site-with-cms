@@ -2,7 +2,7 @@ import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node';
 import { Form, redirect, useLoaderData, useSubmit } from '@remix-run/react';
 import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
-import { Select } from '~/components/Select';
+import { Select, SelectItemType } from '~/components/Select';
 import { useState } from 'react';
 import { Role } from '~/types/user.types';
 import { deleteUser, getUser, updateUser } from '~/api/user.server';
@@ -63,7 +63,24 @@ export default function User() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<string>(user?.role || Role.USER);
 
-  const roles = [Role.ADMIN, Role.USER];
+  const roles = [
+    { id: '1', value: Role.ADMIN },
+    { id: '2', value: Role.USER },
+  ];
+
+  const handleSelectRole = (value: SelectItemType | SelectItemType[]) => {
+    if (!Array.isArray(value)) {
+      setRole(() => {
+        return (
+          roles.find((item) => value.value === item.value)?.value || Role.USER
+        );
+      });
+    } else {
+      setRole(() => {
+        return Role.USER;
+      });
+    }
+  };
 
   const handleDelete = (id: string) => {
     submit(
@@ -130,8 +147,8 @@ export default function User() {
           label={'Role'}
           name={'role'}
           options={roles}
-          value={role}
-          onSelect={setRole}
+          value={roles.find((item) => role === item.value) || roles[1]}
+          onSelect={handleSelectRole}
         />
 
         <div className={'flex justify-between'}>

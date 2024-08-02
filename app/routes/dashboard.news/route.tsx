@@ -6,9 +6,14 @@ import { getNews } from '~/api/news.server';
 import { prepareNews } from '~/utils/prepareNews';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const news = await getNews();
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
+  const sortBy = url.searchParams.get('sortBy') || 'desc';
+  const searchQuery = url.searchParams.get('query') || '';
 
-  return json({ news: prepareNews(news || []) });
+  const { news, paginationInfo } = await getNews(page);
+
+  return json({ news: prepareNews(news || []), paginationInfo });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -35,7 +40,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function News() {
-  const { news } = useLoaderData<typeof loader>();
+  const { news, paginationInfo } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const headings = [
@@ -57,6 +62,14 @@ export default function News() {
         onClick={(to: string) => navigate(to)}
         entityName={'News'}
         emptyMessage={'No news yet'}
+        pagination={{
+          hasNext: paginationInfo.hasNextPage,
+          hasPrevious: paginationInfo.hasPreviousPage,
+          onNext: () =>
+            navigate(`/dashboard/news?page=${paginationInfo.page + 1}`),
+          onPrevious: () =>
+            navigate(`/dashboard/news?page=${paginationInfo.page - 1}`),
+        }}
       />
     </div>
   );

@@ -7,7 +7,7 @@ type ButtonProps = {
   onClick?: () => void;
   fullWidth?: boolean;
   disabled?: boolean;
-  tone?: 'default' | 'critical' | 'success' | 'none';
+  tone?: 'default' | 'critical' | 'success' | 'none' | 'primary';
   bulk?: boolean;
   icon?: React.JSX.Element;
 };
@@ -32,10 +32,11 @@ export function Button({
       'bg-emerald-600 hover:bg-emerald-500 focus-visible:outline-emerald-600',
     tone === 'none' &&
       'h-fit bg-transparent hover:bg-slate-200 text-slate-800 shadow-none',
+    tone === 'primary' && 'bg-slate-200 hover:bg-slate-300 text-slate-900 ',
     bulk && 'px-3 py-0',
 
     fullWidth && 'w-full',
-    disabled && 'bg-gray-300 hover:bg-gray-300',
+    disabled && 'bg-gray-300 hover:bg-gray-300 text-gray-400',
   );
 
   return (

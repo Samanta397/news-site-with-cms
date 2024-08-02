@@ -68,11 +68,60 @@ export async function getTag(id: number) {
   }
 }
 
-export async function getTags() {
+export async function getTags(page: number = 1) {
+  try {
+    const pageSize = 10;
+    const offset = (page - 1) * pageSize;
+
+    const tags = await prisma.tag.findMany({
+      take: pageSize,
+      skip: offset,
+    });
+
+    const count = await prisma.tag.count();
+
+    if (!tags || !count) {
+      return {
+        tags: [],
+        paginationInfo: {
+          pages: 1,
+          page: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+    }
+
+    const pages = Math.ceil(count / pageSize);
+
+    return {
+      tags,
+      paginationInfo: {
+        pages,
+        page,
+        hasNextPage: page < pages,
+        hasPreviousPage: page > 1,
+      },
+    };
+  } catch (error) {
+    console.log('GET TAG ERROR', error);
+    return {
+      tags: [],
+      paginationInfo: {
+        pages: 1,
+        page: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    };
+  }
+}
+
+export async function getAllTags() {
   try {
     const tags = await prisma.tag.findMany();
     return tags;
   } catch (error) {
-    console.log('GET TAG ERROR', error);
+    console.log('GET ALL TAGS ERROR', error);
   }
 }

@@ -85,12 +85,51 @@ export async function getUserByEmail(email: string) {
   }
 }
 
-export async function getUsers() {
+export async function getUsers(page: number = 1) {
   try {
-    const users = await prisma.user.findMany();
+    const pageSize = 10;
+    const offset = (page - 1) * pageSize;
 
-    return users;
+    const users = await prisma.user.findMany({
+      take: pageSize,
+      skip: offset,
+    });
+
+    const count = await prisma.user.count();
+
+    if (!users || !count) {
+      return {
+        users: [],
+        paginationInfo: {
+          pages: 1,
+          page: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+    }
+
+    const pages = Math.ceil(count / pageSize);
+
+    return {
+      users,
+      paginationInfo: {
+        pages,
+        page,
+        hasNextPage: page < pages,
+        hasPreviousPage: page > 1,
+      },
+    };
   } catch (error) {
     console.log('GET USERS ERROR', error);
+    return {
+      users: [],
+      paginationInfo: {
+        pages: 1,
+        page: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    };
   }
 }

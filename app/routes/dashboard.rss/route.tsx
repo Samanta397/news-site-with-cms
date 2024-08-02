@@ -18,13 +18,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  const sources = await getNewsSources();
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
 
-  return json({ sources: prepareSources(sources || []), isAdmin });
+  const { sources, paginationInfo } = await getNewsSources(page);
+
+  return json({
+    sources: prepareSources(sources || []),
+    isAdmin,
+    paginationInfo,
+  });
 };
 
 export default function Rss() {
-  const { sources, isAdmin } = useLoaderData<typeof loader>();
+  const { sources, isAdmin, paginationInfo } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
 
@@ -49,6 +56,14 @@ export default function Rss() {
         //   label: 'Delete',
         //   onAction: handleDelete,
         // }}
+        pagination={{
+          hasNext: paginationInfo.hasNextPage,
+          hasPrevious: paginationInfo.hasPreviousPage,
+          onNext: () =>
+            navigate(`/dashboard/rss?page=${paginationInfo.page + 1}`),
+          onPrevious: () =>
+            navigate(`/dashboard/rss?page=${paginationInfo.page - 1}`),
+        }}
       />
     </div>
   );

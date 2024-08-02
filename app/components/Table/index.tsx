@@ -1,6 +1,8 @@
 import { Checkbox } from '~/components/Checkbox';
 import { useEffect, useState } from 'react';
 import { Button } from '~/components/Button';
+import { ArrowRightIcon } from '~/icons/ArrowRightIcon';
+import { ArrowLeftIcon } from '~/icons/ArrowLeftIcon';
 
 type HeadingType = {
   title: string;
@@ -9,6 +11,13 @@ type HeadingType = {
 type RowType = {
   id: string;
   [key: string]: string;
+};
+
+type PaginationType = {
+  hasNext: boolean;
+  hasPrevious: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
 };
 
 type TableProps = {
@@ -21,6 +30,7 @@ type TableProps = {
   selected?: string[];
   onSelect?: (value: string[]) => void;
   bulkAction?: { label: string; onAction: (value: string[]) => void };
+  pagination?: PaginationType;
 };
 
 export function Table({
@@ -33,6 +43,7 @@ export function Table({
   selected = [],
   onSelect = () => {},
   bulkAction,
+  pagination,
 }: TableProps) {
   const [selectedAll, setSelectedAll] = useState<boolean>(false);
 
@@ -148,6 +159,31 @@ export function Table({
             </tr>
           )}
         </tbody>
+        {pagination && (
+          <tfoot className={'bg-slate-50'}>
+            <tr>
+              <td
+                className={'p-2'}
+                colSpan={selectable ? headings.length + 1 : headings.length}
+              >
+                <div className={'flex justify-center gap-2'}>
+                  <Button
+                    icon={<ArrowLeftIcon />}
+                    tone={'primary'}
+                    disabled={!pagination.hasPrevious}
+                    onClick={pagination.onPrevious}
+                  />
+                  <Button
+                    icon={<ArrowRightIcon />}
+                    tone={'primary'}
+                    disabled={!pagination.hasNext}
+                    onClick={pagination.onNext}
+                  />
+                </div>
+              </td>
+            </tr>
+          </tfoot>
+        )}
       </table>
     </div>
   );
