@@ -13,6 +13,7 @@ import {
   SettingsFieldsErrors,
 } from '~/utils/validation/schema';
 import { useState } from 'react';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 type ActionData = {
   fields: SettingsFields;
@@ -64,6 +65,15 @@ export default function Settings() {
 
   return (
     <div className={'flex flex-col gap-10'}>
+      <Breadcrumbs
+        breadcrumbs={[
+          { href: '/dashboard/ads', label: 'Advertisements' },
+          {
+            href: `/dashboard/settings`,
+            label: `Settings`,
+          },
+        ]}
+      />
       <Form className="space-y-4" method="post" encType="multipart/form-data">
         <div className={'flex gap-10'}>
           <Card width={'w-3/4'} gap>
