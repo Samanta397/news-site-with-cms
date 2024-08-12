@@ -179,7 +179,7 @@ export default function New() {
   return (
     <div className={'flex flex-col gap-10'}>
       <Form className="space-y-4" method="post" encType="multipart/form-data">
-        <div className={'flex gap-10'}>
+        <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>
             <FormField
               name="id"

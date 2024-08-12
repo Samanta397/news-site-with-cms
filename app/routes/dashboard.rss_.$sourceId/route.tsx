@@ -159,7 +159,7 @@ export default function Source() {
         </div>
       )}
       <Form className="space-y-4" method="post" encType="multipart/form-data">
-        <div className={'flex gap-10'}>
+        <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>
             <FormField
               name="id"

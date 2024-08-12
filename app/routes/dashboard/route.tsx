@@ -1,16 +1,7 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
-import {
-  Links,
-  Meta,
-  Outlet,
-  redirect,
-  Scripts,
-  useNavigate,
-  useRouteError,
-} from '@remix-run/react';
+import { Outlet, redirect, useNavigate } from '@remix-run/react';
 import { Sidebar } from '~/components/Sidebar';
-import { NotFound } from '~/components/NotFound';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getUserSession(request);
@@ -26,10 +17,6 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   return (
-    // <div>
-    //   <div>Hi there</div>
-    //   <button onClick={() => navigate('/logout')}>logout</button>
-    // </div>
     <>
       <button
         data-drawer-target="default-sidebar"
@@ -64,5 +51,3 @@ export default function Dashboard() {
     </>
   );
 }
-
-//border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700

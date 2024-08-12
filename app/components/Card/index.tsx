@@ -11,8 +11,8 @@ type CardProps = {
 export function Card({ children, width, centered, gap }: CardProps) {
   const wrapperStyles = twMerge(
     'flex border rounded-lg border-gray-300 p-0.5',
-    width === 'w-1/4' && 'w-1/4',
-    width === 'w-3/4' && 'w-3/4',
+    width === 'w-1/4' && 'w-full lg:w-1/4',
+    width === 'w-3/4' && 'w-full lg:w-3/4',
   );
 
   const styles = twMerge(

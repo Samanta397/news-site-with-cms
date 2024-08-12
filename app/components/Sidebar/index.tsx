@@ -12,7 +12,7 @@ export function Sidebar() {
   const navigate = useNavigate();
 
   const menu = [
-    { title: 'Dashboard', icon: <HomeIcon />, to: '/dashboard' },
+    // { title: 'Dashboard', icon: <HomeIcon />, to: '/dashboard' },
     { title: 'Users', icon: <UsersIcon />, to: '/dashboard/users' },
     { title: 'Tags', icon: <TagIcon />, to: '/dashboard/tags' },
     { title: 'News', icon: <NewsIcon />, to: '/dashboard/news' },
