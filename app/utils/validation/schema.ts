@@ -68,12 +68,17 @@ export const AdsFields = z.object({
   new: z.string().nullish(),
 });
 
+export const SettingsFields = z.object({
+  amount_per_page: z.string().min(1),
+});
+
 export type LoginFields = z.infer<typeof LoginFields>;
 export type RegisterFields = z.infer<typeof RegisterFields>;
 export type NewsFields = z.infer<typeof NewsFields>;
 export type TagsFields = z.infer<typeof TagsFields>;
 export type SourceFields = z.infer<typeof SourceFields>;
 export type AdsFields = z.infer<typeof AdsFields>;
+export type SettingsFields = z.infer<typeof SettingsFields>;
 
 export type LoginFieldsErrors = inferSafeParseErrors<typeof LoginFields>;
 export type RegisterFieldsErrors = inferSafeParseErrors<typeof RegisterFields>;
@@ -81,3 +86,4 @@ export type NewsFieldsErrors = inferSafeParseErrors<typeof NewsFields>;
 export type TagsFieldsErrors = inferSafeParseErrors<typeof TagsFields>;
 export type SourceFieldsErrors = inferSafeParseErrors<typeof SourceFields>;
 export type AdsFieldsErrors = inferSafeParseErrors<typeof AdsFields>;
+export type SettingsFieldsErrors = inferSafeParseErrors<typeof SettingsFields>;

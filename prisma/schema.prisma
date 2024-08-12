@@ -154,3 +154,12 @@ model Advertisement {
 
     @@map("advertisements")
 }
+
+model Settings {
+  id                  Int      @id @default(1)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  amount_per_page     Int      @default(0)
+
+  @@map("settings")
+}
