@@ -32,16 +32,27 @@ export function Select({
   const [selected, setSelected] = useState<SelectItemType | SelectItemType[]>(
     value,
   );
-
   useEffect(() => {
     onSelect(selected);
   }, [selected]);
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   return (
     <div>
       <label className="block text-sm font-medium leading-4 text-gray-900 mb-2">
         {label}
       </label>
+      <input
+        type="text"
+        hidden={true}
+        name={name}
+        className="hidden"
+        value={multiple || Array.isArray(selected) ? 'Select' : selected.id}
+        onChange={setSelected}
+      />
       <Listbox value={selected} onChange={setSelected} multiple={multiple}>
         <ListboxButton
           className={twMerge(

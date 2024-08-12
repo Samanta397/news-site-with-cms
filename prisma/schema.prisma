@@ -52,6 +52,7 @@ model News {
   media          Media?      @relation(fields: [media_id], references: [id])
   media_id       Int?        @unique
   tags           TagsOnNews[]
+  ads            Advertisement[]
 
   source         NewsSource? @relation(fields: [source_id], references: [id])
   source_id      Int?        @unique
@@ -103,6 +104,7 @@ model Media {
   updatedAt      DateTime      @updatedAt
 
   news          News[]
+  ads           Advertisement[]
 
   @@map("media")
 }
@@ -126,4 +128,29 @@ model NewsSource {
     updatedAt      DateTime      @updatedAt
 
     @@map("news_source")
+}
+
+model Advertisement {
+    id                    Int           @id @default(autoincrement())
+    title                 String
+    content               String?
+    link                  String?
+    is_draft              Boolean       @default(false)
+    priority              Int           @default(0)
+    pubDate               DateTime?
+    is_list_page          Boolean       @default(false)
+    is_search_page        Boolean       @default(false)
+    is_main_page        Boolean       @default(false)
+    is_filter_page        Boolean       @default(false)
+    regExp                String?
+
+    media                 Media?        @relation(fields: [media_id], references: [id])
+    media_id              Int?          @unique
+
+    new                   News?         @relation(fields: [new_id], references: [id], onDelete: Cascade)
+    new_id                Int?
+    createdAt             DateTime      @default(now())
+    updatedAt             DateTime      @updatedAt
+
+    @@map("advertisements")
 }

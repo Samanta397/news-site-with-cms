@@ -18,7 +18,7 @@ export function Sidebar() {
     { title: 'News', icon: <NewsIcon />, to: '/dashboard/news' },
     { title: 'RSS', icon: <PuzzleIcon />, to: '/dashboard/rss' },
     { title: 'Ads', icon: <AdsIcon />, to: '/dashboard/ads' },
-    { title: 'Settings', icon: <SettingsIcon />, to: '/dashboard/settings' },
+    // { title: 'Settings', icon: <SettingsIcon />, to: '/dashboard/settings' },
   ];
 
   return (
