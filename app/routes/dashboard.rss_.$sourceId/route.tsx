@@ -23,6 +23,7 @@ import {
 } from '~/api/rss.server';
 import { formatDate } from '~/utils/formatDate';
 import { SourceFields } from '~/utils/validation/schema';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
@@ -146,6 +147,15 @@ export default function Source() {
 
   return (
     <div className={'flex flex-col gap-10'}>
+      <Breadcrumbs
+        breadcrumbs={[
+          { href: '/dashboard/rss', label: 'Rss' },
+          {
+            href: `/dashboard/rss/${sourceId}`,
+            label: `${source ? source.name : 'create'}`,
+          },
+        ]}
+      />
       {source && (
         <div className={'flex items-end flex-col'}>
           {source.last_import_time && (

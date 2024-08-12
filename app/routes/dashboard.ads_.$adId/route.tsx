@@ -25,6 +25,7 @@ import * as process from 'node:process';
 import { saveMedia } from '~/api/media.server';
 import { createAd, deleteAd, getAd, updateAd } from '~/api/ads.server';
 import { prepareSelectItems } from '~/utils/prepareSelectItems';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 type ActionData = {
   fields: AdsFields;
@@ -182,6 +183,15 @@ export default function Ad() {
 
   return (
     <div className={'flex flex-col gap-10'}>
+      <Breadcrumbs
+        breadcrumbs={[
+          { href: '/dashboard/ads', label: 'Ads' },
+          {
+            href: `/dashboard/ads/${adId}`,
+            label: `${advertisement ? advertisement.title : 'create'}`,
+          },
+        ]}
+      />
       <Form className="space-y-4" method="post" encType="multipart/form-data">
         <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>

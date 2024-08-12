@@ -31,6 +31,7 @@ import { DropZone } from '~/components/DropZone';
 import { getObject, uploadImage } from '~/api/minio.server';
 import * as process from 'node:process';
 import { saveMedia } from '~/api/media.server';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 type ActionData = {
   fields: NewsFields;
@@ -178,6 +179,15 @@ export default function New() {
 
   return (
     <div className={'flex flex-col gap-10'}>
+      <Breadcrumbs
+        breadcrumbs={[
+          { href: '/dashboard/news', label: 'News' },
+          {
+            href: `/dashboard/news/${newsId}`,
+            label: `${news ? news.title : 'create'}`,
+          },
+        ]}
+      />
       <Form className="space-y-4" method="post" encType="multipart/form-data">
         <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>

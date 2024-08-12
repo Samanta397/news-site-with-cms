@@ -9,6 +9,7 @@ import { deleteUser, getUser, updateUser } from '~/api/user.server';
 import { getUserSession } from '~/api/auth.server';
 import { RegisterFields } from '~/utils/validation/schema';
 import { capitalize } from '~/utils/capitalize';
+import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
@@ -97,6 +98,15 @@ export default function User() {
 
   return (
     <div className="mt-6 sm:mx-left min-w-80 sm:w-full sm:max-w-sm">
+      <Breadcrumbs
+        breadcrumbs={[
+          { href: '/dashboard/users', label: 'Users' },
+          {
+            href: `/dashboard/users/${userId}`,
+            label: `${user ? user.first_name.concat(` ${user.last_name}`) : 'create'}`,
+          },
+        ]}
+      />
       <Form className="space-y-4" method="post">
         <FormField
           name="id"
