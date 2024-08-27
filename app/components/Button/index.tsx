@@ -10,6 +10,7 @@ type ButtonProps = {
   tone?: 'default' | 'critical' | 'success' | 'none' | 'primary';
   bulk?: boolean;
   icon?: React.JSX.Element;
+  customStyles?: string;
 };
 
 export function Button({
@@ -21,6 +22,7 @@ export function Button({
   tone = 'default',
   icon,
   bulk = false,
+  customStyles,
 }: ButtonProps) {
   const styles = twMerge(
     'flex justify-center rounded-md  px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
@@ -37,6 +39,7 @@ export function Button({
 
     fullWidth && 'w-full',
     disabled && 'bg-gray-300 hover:bg-gray-300 text-gray-400',
+    customStyles && customStyles,
   );
 
   return (

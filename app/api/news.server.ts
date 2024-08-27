@@ -109,17 +109,69 @@ export async function getNew(id: number) {
     console.log('GET NEW ERROR', error);
   }
 }
-export async function getNews(page: number = 1) {
+export async function getNews(
+  page: number = 1,
+  onlyPublished = false,
+  query = '',
+) {
   try {
     //TODO: add pagination, filtering, searching
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
     const news = await prisma.news.findMany({
+      where: {
+        AND: [
+          onlyPublished
+            ? {
+                pubDate: {
+                  not: null,
+                },
+              }
+            : {},
+
+          query
+            ? {
+                title: {
+                  mode: 'insensitive',
+                  contains: query,
+                },
+              }
+            : {},
+        ],
+      },
       take: pageSize,
       skip: offset,
+      include: {
+        media: true,
+        ads: {
+          include: {
+            media: true,
+          },
+        },
+      },
     });
 
-    const count = await prisma.news.count();
+    const count = await prisma.news.count({
+      where: {
+        AND: [
+          onlyPublished
+            ? {
+                pubDate: {
+                  not: null,
+                },
+              }
+            : {},
+          query
+            ? {
+                title: {
+                  mode: 'insensitive',
+                  contains: query,
+                },
+              }
+            : {},
+        ],
+      },
+    });
 
     if (!news || !count) {
       return {

@@ -1,8 +1,6 @@
 import { Button } from '~/components/Button';
 import { Table } from '~/components/Table';
 import { json, LoaderFunctionArgs } from '@remix-run/node';
-import { getNews } from '~/api/news.server';
-import { prepareNews } from '~/utils/prepareNews';
 import { useLoaderData, useNavigate } from '@remix-run/react';
 import { getAds } from '~/api/ads.server';
 import { prepareAds } from '~/utils/prepareAds';

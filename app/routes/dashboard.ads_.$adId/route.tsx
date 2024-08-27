@@ -113,7 +113,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     is_search_page: !!fields.is_search_page,
     is_main_page: !!fields.is_main_page,
     is_filter_page: !!fields.is_filter_page,
-    priority: fields.priority,
+    priority: Number(fields.priority),
     regExp: fields.regExp,
     media_id: createdImage?.id || null,
     new_id: existedNew?.id || null,

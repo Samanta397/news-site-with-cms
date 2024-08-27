@@ -21,7 +21,10 @@ export async function updateAd(id: number, data: any) {
       where: {
         id,
       },
-      data,
+      data: {
+        ...data,
+        pubDate: data.is_draft ? null : new Date(),
+      },
       include: {
         new: true,
         media: true,
@@ -63,20 +66,73 @@ export async function getAd(id: number) {
   }
 }
 
-export async function getAds(page: number = 1) {
+export async function getAds(
+  page: number = 1,
+  pageSize = 10,
+  onlyPublished = false,
+  listPage = false,
+  searchPage = false,
+  query = '',
+) {
   try {
-    const pageSize = 10;
+    // const pageSize = 10;
     const offset = (page - 1) * pageSize;
 
     const advertisements = await prisma.advertisement.findMany({
+      where: {
+        AND: [
+          onlyPublished
+            ? {
+                pubDate: {
+                  not: null,
+                },
+                is_draft: false,
+              }
+            : {},
+
+          query
+            ? {
+                title: {
+                  mode: 'insensitive',
+                  contains: query,
+                },
+              }
+            : {},
+        ],
+      },
       take: pageSize,
       skip: offset,
       include: {
         new: true,
         media: true,
       },
+      orderBy: {
+        priority: 'desc',
+      },
     });
-    const count = await prisma.advertisement.count();
+
+    const count = await prisma.advertisement.count({
+      where: {
+        AND: [
+          onlyPublished
+            ? {
+                pubDate: {
+                  not: null,
+                },
+              }
+            : {},
+
+          query
+            ? {
+                title: {
+                  mode: 'insensitive',
+                  contains: query,
+                },
+              }
+            : {},
+        ],
+      },
+    });
 
     if (!advertisements || !count) {
       return {
