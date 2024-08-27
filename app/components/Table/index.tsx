@@ -115,7 +115,6 @@ export function Table({
             <tr
               className="bg-white border-b hover:bg-gray-50"
               key={`table_tr_${id}`}
-              // onClick={() => onClick(`${id}`)}
             >
               {selectable && (
                 <td

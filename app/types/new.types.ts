@@ -18,3 +18,5 @@ export type PrismaNew = Prisma.NewsGetPayload<Prisma.NewsDefaultArgs>;
 export type PrismaNewWithEntities = Prisma.NewsGetPayload<{
   include: { media: true; ads: { include: { media: true } } };
 }> & { mediaFile: string };
+
+export type PrismaNewsWhereInput = Prisma.NewsWhereInput;

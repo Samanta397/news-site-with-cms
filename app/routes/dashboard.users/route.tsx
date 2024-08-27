@@ -24,10 +24,6 @@ export default function Users() {
 
   return (
     <>
-      {/*<div>Users page</div>*/}
-      {/*<button onClick={() => navigate('/dashboard/users/1')}>*/}
-      {/*  Go to user 1*/}
-      {/*</button>*/}
       <Table
         headings={headings}
         rows={users}

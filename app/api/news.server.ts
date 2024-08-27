@@ -1,5 +1,5 @@
 import { prisma } from './prisma.server';
-import { NewType } from '~/types/new.types';
+import { NewType, PrismaNewsWhereInput } from '~/types/new.types';
 
 export async function createNew(data: Omit<NewType, 'id'>) {
   try {
@@ -167,33 +167,35 @@ export async function getNews(
   try {
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
+
+    const whereQuery: PrismaNewsWhereInput = {
+      AND: [
+        onlyPublished
+          ? {
+              pubDate: {
+                not: null,
+              },
+            }
+          : {},
+
+        inNotHidden
+          ? {
+              is_hidden: false,
+            }
+          : {},
+
+        query
+          ? {
+              title: {
+                mode: 'insensitive',
+                contains: query,
+              },
+            }
+          : {},
+      ],
+    };
     const news = await prisma.news.findMany({
-      where: {
-        AND: [
-          onlyPublished
-            ? {
-                pubDate: {
-                  not: null,
-                },
-              }
-            : {},
-
-          inNotHidden
-            ? {
-                is_hidden: false,
-              }
-            : {},
-
-          query
-            ? {
-                title: {
-                  mode: 'insensitive',
-                  contains: query,
-                },
-              }
-            : {},
-        ],
-      },
+      where: whereQuery,
       take: pageSize,
       skip: offset,
       include: {
@@ -207,30 +209,7 @@ export async function getNews(
     });
 
     const count = await prisma.news.count({
-      where: {
-        AND: [
-          onlyPublished
-            ? {
-                pubDate: {
-                  not: null,
-                },
-              }
-            : {},
-          inNotHidden
-            ? {
-                is_hidden: false,
-              }
-            : {},
-          query
-            ? {
-                title: {
-                  mode: 'insensitive',
-                  contains: query,
-                },
-              }
-            : {},
-        ],
-      },
+      where: whereQuery,
     });
 
     if (!news || !count) {

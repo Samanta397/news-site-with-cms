@@ -7,7 +7,6 @@ import {
   Form,
   json,
   redirect,
-  useActionData,
   useLoaderData,
   useSubmit,
 } from '@remix-run/react';
@@ -73,8 +72,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     });
   } else {
     const advertisement = await getAd(Number(adId));
-
-    console.log(advertisement?.media?.file_name);
     const media = await getObject(
       process.env.MINIO_BUCKET_NAME || '',
       advertisement?.media?.file_name || '',

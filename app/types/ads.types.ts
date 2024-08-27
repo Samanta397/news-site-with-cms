@@ -6,3 +6,5 @@ export type PrismaAdvertisement =
 export type PrismaAdvertisementWithEntities = Prisma.AdvertisementGetPayload<{
   include: { media: true; new: true };
 }> & { mediaFile: string };
+
+export type PrismaAdvertisementWhereInput = Prisma.AdvertisementWhereInput;

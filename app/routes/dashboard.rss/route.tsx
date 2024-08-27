@@ -52,10 +52,6 @@ export default function Rss() {
         selectable={true}
         selected={[]}
         onSelect={() => {}}
-        // bulkAction={{
-        //   label: 'Delete',
-        //   onAction: handleDelete,
-        // }}
         pagination={{
           hasNext: paginationInfo.hasNextPage,
           hasPrevious: paginationInfo.hasPreviousPage,

@@ -3,7 +3,7 @@ type CheckboxProps = {
   name: string;
   htmlFor: string;
   checked?: boolean;
-  onChange?: (value: any) => void;
+  onChange?: () => void;
 };
 
 export function Checkbox({

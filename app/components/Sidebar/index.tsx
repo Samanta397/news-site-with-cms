@@ -1,25 +1,23 @@
-import { HomeIcon } from '~/icons/HomeIcon';
 import { UsersIcon } from '~/icons/UsersIcon';
 import { TagIcon } from '~/icons/TagIcon';
 import { NewsIcon } from '~/icons/NewsIcon';
 import { PuzzleIcon } from '~/icons/PuzzleIcon';
 import { AdsIcon } from '~/icons/AdsIcon';
-import { SettingsIcon } from '~/icons/SettingsIcon';
 import { LogoutIcon } from '~/icons/LogoutIcon';
-import { Link, useNavigate } from '@remix-run/react';
+import { Link } from '@remix-run/react';
+import { useState } from 'react';
+import { CrossIcon } from '~/icons/CrossIcon';
 
 export function Sidebar() {
-  const navigate = useNavigate();
-
+  const [sidebarOpen, setSideBarOpen] = useState(false);
   const menu = [
-    // { title: 'Dashboard', icon: <HomeIcon />, to: '/dashboard' },
     { title: 'Users', icon: <UsersIcon />, to: '/dashboard/users' },
     { title: 'Tags', icon: <TagIcon />, to: '/dashboard/tags' },
     { title: 'News', icon: <NewsIcon />, to: '/dashboard/news' },
     { title: 'RSS', icon: <PuzzleIcon />, to: '/dashboard/rss' },
     { title: 'Ads', icon: <AdsIcon />, to: '/dashboard/ads' },
-    // { title: 'Settings', icon: <SettingsIcon />, to: '/dashboard/settings' },
   ];
+  console.log('sidebarOpen', sidebarOpen);
 
   return (
     <>
@@ -33,6 +31,7 @@ export function Sidebar() {
                 aria-controls="logo-sidebar"
                 type="button"
                 className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                onClick={() => setSideBarOpen(true)}
               >
                 <span className="sr-only">Open sidebar</span>
                 <svg
@@ -71,16 +70,22 @@ export function Sidebar() {
 
       <aside
         id="default-sidebar"
-        className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+        className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 ${sidebarOpen ? 'translate-x-0 ' : '-translate-x-full'} `}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-indigo-600">
-          <div className="flex h-16 shrink-0 items-center ml-4">
+          <div className="flex h-16 shrink-0 items-center ml-4 justify-between">
             <img
               src="https://tailwindui.com/img/logos/mark.svg?color=white"
               alt="Your Company"
               className="h-8 w-auto"
             />
+            <button
+              className={`block sm:hidden `}
+              onClick={() => setSideBarOpen(false)}
+            >
+              <CrossIcon className={'text-white'} />
+            </button>
           </div>
           <ul className="content-between space-y-2 font-medium text-lg">
             <div className="space-y-2 font-medium text-lg">

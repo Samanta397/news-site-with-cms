@@ -6,3 +6,4 @@ export type Tag = {
 };
 
 export type PrismaTag = Prisma.TagGetPayload<Prisma.TagDefaultArgs>;
+export type PrismaTagWhereInput = Prisma.TagWhereInput;

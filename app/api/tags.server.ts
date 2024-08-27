@@ -1,5 +1,5 @@
 import { prisma } from './prisma.server';
-import { Tag } from '~/types/tag.types';
+import { PrismaTagWhereInput, Tag } from '~/types/tag.types';
 export async function createTag(tagName: string) {
   try {
     const tag = await prisma.tag.create({
@@ -73,36 +73,27 @@ export async function getTags(page: number = 1, query = '') {
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
 
+    const whereQuery: PrismaTagWhereInput = {
+      AND: [
+        query
+          ? {
+              tagName: {
+                mode: 'insensitive',
+                contains: query,
+              },
+            }
+          : {},
+      ],
+    };
+
     const tags = await prisma.tag.findMany({
-      where: {
-        AND: [
-          query
-            ? {
-                tagName: {
-                  mode: 'insensitive',
-                  contains: query,
-                },
-              }
-            : {},
-        ],
-      },
+      where: whereQuery,
       take: pageSize,
       skip: offset,
     });
 
     const count = await prisma.tag.count({
-      where: {
-        AND: [
-          query
-            ? {
-                tagName: {
-                  mode: 'insensitive',
-                  contains: query,
-                },
-              }
-            : {},
-        ],
-      },
+      where: whereQuery,
     });
 
     if (!tags || !count) {

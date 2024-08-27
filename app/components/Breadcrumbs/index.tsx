@@ -1,11 +1,14 @@
-import { twMerge } from 'tailwind-merge';
 import React from 'react';
-import { LogoutIcon } from '~/icons/LogoutIcon';
 import { Link } from '@remix-run/react';
 import { ArrowRightIcon } from '~/icons/ArrowRightIcon';
 
+type BreadcrumbType = {
+  href: string;
+  label: string;
+};
+
 type BreadcrumbsType = {
-  breadcrumbs: any[];
+  breadcrumbs: BreadcrumbType[];
 };
 
 export function Breadcrumbs({ breadcrumbs = [] }: BreadcrumbsType) {
