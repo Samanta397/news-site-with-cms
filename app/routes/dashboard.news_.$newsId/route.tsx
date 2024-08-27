@@ -1,7 +1,7 @@
 import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
 import { FormField } from '~/components/FormField';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Select, SelectItemType } from '~/components/Select';
 import {
   Form,
@@ -24,7 +24,7 @@ import {
 import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
 import { Role } from '~/types/user.types';
-import { getAllTags, getTags } from '~/api/tags.server';
+import { getTags } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
 import { Checkbox } from '~/components/Checkbox';
 import { DropZone } from '~/components/DropZone';
@@ -45,6 +45,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
 
   const { newsId } = params;
+  const url = new URL(request.url);
+  const searchQuery = url.searchParams.get('query') || '';
+  const page = Number(url.searchParams.get('page')) || 1;
+
   if (!newsId) {
     //TODO: add logic when newsId not exists
     return;
@@ -55,7 +59,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  const tags = await getAllTags();
+  const { tags, paginationInfo } = await getTags(page, searchQuery);
 
   if (newsId === 'create') {
     return json({
@@ -64,6 +68,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       tags: prepareTags(tags || []),
       isAdmin,
       media: null,
+      tagsPaginationInfo: paginationInfo,
     });
   } else {
     const news = await getNew(Number(newsId));
@@ -78,6 +83,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       tags: prepareTags(tags || []),
       isAdmin,
       media,
+      tagsPaginationInfo: paginationInfo,
     });
   }
 };
@@ -116,11 +122,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     author: fields.author,
     is_graft: !fields.is_publish,
     is_hidden: !!fields.is_hidden,
-    media_id: createdImage?.id || null,
+    media_id:
+      Number(fields.image_id) > 0
+        ? Number(fields.image_id)
+        : createdImage?.id
+          ? createdImage?.id
+          : null,
+    tags: fields.tags.split(','),
   };
 
   if (fields.id === 'create') {
     const { id, ...createData } = data;
+
     const createdNew = await createNew(createData);
     if (createdNew) {
       return redirect(`/dashboard/news/${createdNew.id}`);
@@ -137,18 +150,25 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function New() {
-  const { newsId, news, tags, isAdmin, media } = useLoaderData<typeof loader>();
+  const { newsId, news, tags, isAdmin, media, tagsPaginationInfo } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
   const [title, setTitle] = useState<string>(news?.title || '');
   const [content, setContent] = useState<string>(news?.content || '');
   const [author, setAuthor] = useState<string>(news?.author || '');
-  const [isPublish, setIsPublish] = useState<boolean>(false);
-  const [isHidden, setIsHidden] = useState<boolean>(false);
+  const [isPublish, setIsPublish] = useState<boolean>(!!news?.pubDate);
+  const [isHidden, setIsHidden] = useState<boolean>(news?.is_hidden || false);
   const [selectedTags, setSelectedTags] = useState<
     SelectItemType | SelectItemType[]
   >([]);
+  const [query, setQuery] = useState('');
+
+  const [mediaId, setMediaId] = useState<string>(
+    news?.media?.id.toString() || '0',
+  );
+
   //TODO: add errors to form fields and disable buttons if user is not Admin
 
   const handleDelete = (id: string) => {
@@ -177,6 +197,17 @@ export default function New() {
     );
   };
 
+  useEffect(() => {
+    if (news?.tags.length) {
+      setSelectedTags(
+        news.tags.map((item) => ({
+          id: item.tag.id.toString(),
+          value: item.tag.tagName,
+        })),
+      );
+    }
+  }, [news]);
+
   return (
     <div className={'flex flex-col gap-10'}>
       <Breadcrumbs
@@ -197,6 +228,15 @@ export default function New() {
               label="Id"
               value={newsId}
               required
+              hidden
+            />
+
+            <FormField
+              name="image_id"
+              htmlFor="image_id"
+              label="image_id"
+              value={mediaId}
+              // required
               hidden
             />
 
@@ -222,6 +262,7 @@ export default function New() {
               label={'Image'}
               htmlFor={'image'}
               media={media}
+              onChange={setMediaId}
             />
           </Card>
 
@@ -237,11 +278,22 @@ export default function New() {
 
             <Select
               label={'Tags'}
-              name={'tag'}
+              name={'tags'}
               options={tags}
               value={selectedTags}
               onSelect={setSelectedTags}
               multiple={true}
+              query={query}
+              onSearch={setQuery}
+              searchable={true}
+              pagination={{
+                hasNext: tagsPaginationInfo.hasNextPage,
+                hasPrevious: tagsPaginationInfo.hasPreviousPage,
+                onNext: () =>
+                  submit({ page: tagsPaginationInfo.page + 1, query }),
+                onPrevious: () =>
+                  submit({ page: tagsPaginationInfo.page - 1, query }),
+              }}
             />
 
             <Checkbox

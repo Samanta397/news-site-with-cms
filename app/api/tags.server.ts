@@ -68,17 +68,42 @@ export async function getTag(id: number) {
   }
 }
 
-export async function getTags(page: number = 1) {
+export async function getTags(page: number = 1, query = '') {
   try {
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
 
     const tags = await prisma.tag.findMany({
+      where: {
+        AND: [
+          query
+            ? {
+                tagName: {
+                  mode: 'insensitive',
+                  contains: query,
+                },
+              }
+            : {},
+        ],
+      },
       take: pageSize,
       skip: offset,
     });
 
-    const count = await prisma.tag.count();
+    const count = await prisma.tag.count({
+      where: {
+        AND: [
+          query
+            ? {
+                tagName: {
+                  mode: 'insensitive',
+                  contains: query,
+                },
+              }
+            : {},
+        ],
+      },
+    });
 
     if (!tags || !count) {
       return {
@@ -114,14 +139,5 @@ export async function getTags(page: number = 1) {
         hasPreviousPage: false,
       },
     };
-  }
-}
-
-export async function getAllTags() {
-  try {
-    const tags = await prisma.tag.findMany();
-    return tags;
-  } catch (error) {
-    console.log('GET ALL TAGS ERROR', error);
   }
 }

@@ -29,8 +29,9 @@ export const NewsFields = z.object({
   is_publish: z.string().nullish(),
   is_hidden: z.string().nullish(),
   image: z.instanceof(File).nullish(),
+  image_id: z.string().nullish(),
 
-  // tags: z.array(z.string()),
+  tags: z.string(),
 });
 
 export const SourceFields = z.object({
@@ -66,6 +67,7 @@ export const AdsFields = z.object({
   priority: z.string().nullish(),
   regExp: z.string().nullish(),
   new: z.string().nullish(),
+  image_id: z.string().nullish(),
 });
 
 export const SettingsFields = z.object({

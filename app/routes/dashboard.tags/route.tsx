@@ -134,6 +134,7 @@ export default function Tags() {
       });
     }
     setIsOpen(false);
+    setTagName('');
   }, [actionData]);
 
   return (

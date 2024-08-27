@@ -2,7 +2,6 @@ import { prisma } from '~/api/prisma.server';
 
 export async function createAd(data: any) {
   try {
-    console.log('data.is_graft', data);
     const advertisement = await prisma.advertisement.create({
       data: {
         ...data,

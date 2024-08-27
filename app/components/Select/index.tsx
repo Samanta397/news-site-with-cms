@@ -9,6 +9,9 @@ import {
 import { twMerge } from 'tailwind-merge';
 import { CheckIcon } from '~/icons/CheckIcon';
 import { ChevronDownIcon } from '~/icons/ChevronDownIcon';
+import { SearchBar } from '~/components/SearchBar';
+import { PaginationType } from '~/components/Table';
+import { SearchPagination } from '~/components/SearchBar/SearchPagination';
 
 export type SelectItemType = { id: string; value: string };
 
@@ -19,6 +22,10 @@ type SelectProps = {
   value: SelectItemType | SelectItemType[];
   onSelect: (value: SelectItemType | SelectItemType[]) => void;
   multiple?: boolean;
+  searchable?: boolean;
+  query?: string;
+  onSearch?: (value: string) => void;
+  pagination?: PaginationType;
 };
 
 export function Select({
@@ -28,6 +35,10 @@ export function Select({
   value,
   onSelect,
   multiple = false,
+  searchable = false,
+  query = '',
+  onSearch = () => {},
+  pagination,
 }: SelectProps) {
   const [selected, setSelected] = useState<SelectItemType | SelectItemType[]>(
     value,
@@ -50,7 +61,13 @@ export function Select({
         hidden={true}
         name={name}
         className="hidden"
-        value={multiple || Array.isArray(selected) ? 'Select' : selected.id}
+        value={
+          multiple && Array.isArray(selected)
+            ? selected.map((item) => item.id).join(',')
+            : !Array.isArray(selected)
+              ? selected.id
+              : 'Select'
+        }
         onChange={setSelected}
       />
       <Listbox value={selected} onChange={setSelected} multiple={multiple}>
@@ -74,6 +91,9 @@ export function Select({
             'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0',
           )}
         >
+          {searchable && (
+            <SearchBar query={query} onChange={onSearch} autoComplete={true} />
+          )}
           {options.map((item) => (
             <ListboxOption
               key={item.id}
@@ -87,6 +107,14 @@ export function Select({
               <div className="text-sm/6 black">{item.value}</div>
             </ListboxOption>
           ))}
+          {pagination && (
+            <SearchPagination
+              hasNext={pagination.hasNext}
+              hasPrevious={pagination.hasPrevious}
+              onPrevious={pagination.onPrevious}
+              onNext={pagination.onNext}
+            />
+          )}
         </ListboxOptions>
       </Listbox>
     </div>

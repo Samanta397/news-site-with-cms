@@ -13,7 +13,7 @@ type RowType = {
   [key: string]: string;
 };
 
-type PaginationType = {
+export type PaginationType = {
   hasNext: boolean;
   hasPrevious: boolean;
   onPrevious: () => void;

@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
 
-  const { news, paginationInfo } = await getNews(page, true);
+  const { news, paginationInfo } = await getNews(page, true, true);
 
   const newsWithMedia = await Promise.all(
     news.map(async (item) => {

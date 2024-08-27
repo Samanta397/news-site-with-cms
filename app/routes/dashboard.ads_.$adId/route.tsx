@@ -39,6 +39,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
 
   const { adId } = params;
+
+  const url = new URL(request.url);
+  const searchQuery = url.searchParams.get('query') || '';
+  const page = Number(url.searchParams.get('page')) || 1;
+
   if (!adId) {
     //TODO: add logic when newsId not exists
     return;
@@ -50,7 +55,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  const { news } = await getNews(1);
+  const { news, paginationInfo } = await getNews(
+    page,
+    false,
+    false,
+    searchQuery,
+  );
 
   if (adId === 'create') {
     return json({
@@ -59,10 +69,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       news: prepareSelectItems(news || []),
       isAdmin,
       media: null,
+      newsPaginationInfo: paginationInfo,
     });
   } else {
     const advertisement = await getAd(Number(adId));
 
+    console.log(advertisement?.media?.file_name);
     const media = await getObject(
       process.env.MINIO_BUCKET_NAME || '',
       advertisement?.media?.file_name || '',
@@ -74,6 +86,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       news: prepareSelectItems(news || []),
       isAdmin,
       media,
+      newsPaginationInfo: paginationInfo,
     });
   }
 };
@@ -115,7 +128,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     is_filter_page: !!fields.is_filter_page,
     priority: Number(fields.priority),
     regExp: fields.regExp,
-    media_id: createdImage?.id || null,
+    media_id:
+      Number(fields.image_id) > 0
+        ? Number(fields.image_id)
+        : createdImage?.id
+          ? createdImage?.id
+          : null,
     new_id: existedNew?.id || null,
   };
 
@@ -137,7 +155,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Ad() {
-  const { adId, advertisement, isAdmin, media, news } =
+  const { adId, advertisement, isAdmin, media, news, newsPaginationInfo } =
     useLoaderData<typeof loader>();
   // const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
@@ -146,17 +164,30 @@ export default function Ad() {
   const [content, setContent] = useState<string>(advertisement?.content || '');
   const [link, setLink] = useState<string>(advertisement?.link || '');
   const [regExp, setRegExp] = useState<string>(advertisement?.regExp || '');
-  const [isPublish, setIsPublish] = useState<boolean>(false);
-  const [isOnListPage, setIsOnListPage] = useState<boolean>(false);
-  const [isOnSearchPage, setIsOnSearchPage] = useState<boolean>(false);
-  const [isOnMainPage, setIsOnMainPage] = useState<boolean>(false);
-  const [isOnFilterPage, setIsOnFilterPage] = useState<boolean>(false);
+  const [isPublish, setIsPublish] = useState<boolean>(!advertisement?.pubDate);
+  const [isOnListPage, setIsOnListPage] = useState<boolean>(
+    advertisement?.is_list_page || false,
+  );
+  const [isOnSearchPage, setIsOnSearchPage] = useState<boolean>(
+    advertisement?.is_search_page || false,
+  );
+  const [isOnMainPage, setIsOnMainPage] = useState<boolean>(
+    advertisement?.is_main_page || false,
+  );
+  const [isOnFilterPage, setIsOnFilterPage] = useState<boolean>(
+    advertisement?.is_filter_page || false,
+  );
   const [priority, setPriority] = useState<number>(
     advertisement?.priority || 0,
   );
   const [selectedNews, setSelectedNews] = useState<
     SelectItemType | SelectItemType[]
   >([]);
+  const [mediaId, setMediaId] = useState<string>(
+    advertisement?.media?.id.toString() || '0',
+  );
+  const [query, setQuery] = useState('');
+
   //TODO: add errors to form fields and disable buttons if user is not Admin
 
   useEffect(() => {
@@ -205,6 +236,15 @@ export default function Ad() {
             />
 
             <FormField
+              name="image_id"
+              htmlFor="image_id"
+              label="image_id"
+              value={mediaId}
+              // required
+              hidden
+            />
+
+            <FormField
               name="title"
               htmlFor="title"
               label="Title"
@@ -235,6 +275,7 @@ export default function Ad() {
               label={'Image'}
               htmlFor={'image'}
               media={media}
+              onChange={setMediaId}
             />
 
             <Select
@@ -243,6 +284,17 @@ export default function Ad() {
               options={news}
               value={selectedNews}
               onSelect={setSelectedNews}
+              query={query}
+              onSearch={setQuery}
+              searchable={true}
+              pagination={{
+                hasNext: newsPaginationInfo.hasNextPage,
+                hasPrevious: newsPaginationInfo.hasPreviousPage,
+                onNext: () =>
+                  submit({ page: newsPaginationInfo.page + 1, query }),
+                onPrevious: () =>
+                  submit({ page: newsPaginationInfo.page - 1, query }),
+              }}
             />
           </Card>
 

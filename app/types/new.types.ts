@@ -11,6 +11,7 @@ export type NewType = {
   pubDate?: Date | null;
   link?: string | null;
   source_guid?: string | null;
+  tags?: string[];
 };
 
 export type PrismaNew = Prisma.NewsGetPayload<Prisma.NewsDefaultArgs>;

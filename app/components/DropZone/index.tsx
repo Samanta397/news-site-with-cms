@@ -7,9 +7,16 @@ type DropZoneType = {
   label: string;
   htmlFor: string;
   media?: string | null;
+  onChange?: (value: string) => void;
 };
 
-export function DropZone({ name, label, htmlFor, media = null }: DropZoneType) {
+export function DropZone({
+  name,
+  label,
+  htmlFor,
+  media = null,
+  onChange = () => {},
+}: DropZoneType) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -17,21 +24,21 @@ export function DropZone({ name, label, htmlFor, media = null }: DropZoneType) {
     if (e.target.files && e.target.files.length > 0) {
       const target = e.target.files[0];
       setSelectedFile(target);
-      // onChange(target);
-
-      // const src = URL.createObjectURL(target);
-      // console.log('src', src);
-      // setSelectedImage(src);
     }
   };
 
   const handleRemove = () => {
     setSelectedFile(null);
     setSelectedImage(null);
+    onChange('0');
   };
 
   useEffect(() => {
-    setSelectedImage(media);
+    if (media && !media.endsWith('base64,')) {
+      setSelectedImage(media);
+    } else {
+      setSelectedImage(null);
+    }
   }, [media]);
 
   return (

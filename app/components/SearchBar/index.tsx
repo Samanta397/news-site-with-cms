@@ -1,7 +1,27 @@
 import { Button } from '~/components/Button';
-import { Form } from '@remix-run/react';
+import { Form, useSubmit } from '@remix-run/react';
+import { useEffect, useRef } from 'react';
 
-export function SearchBar() {
+type SearchBarType = {
+  query?: string;
+  onChange: (value: string) => void;
+  autoComplete?: boolean;
+};
+
+export function SearchBar({
+  query = '',
+  onChange,
+  autoComplete = false,
+}: SearchBarType) {
+  const submit = useSubmit();
+  const ref = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (autoComplete) {
+      submit({ query });
+    }
+  }, [query]);
+
   return (
     <Form method="post">
       <label
@@ -35,6 +55,8 @@ export function SearchBar() {
           placeholder="Search..."
           name="search"
           required
+          onChange={(e) => onChange(e?.target?.value || '')}
+          value={query}
         />
         <Button
           type="submit"

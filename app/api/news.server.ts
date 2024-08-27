@@ -3,10 +3,20 @@ import { NewType } from '~/types/new.types';
 
 export async function createNew(data: Omit<NewType, 'id'>) {
   try {
+    const tags = data.tags?.map((item) => ({
+      tag: {
+        connect: {
+          id: Number(item),
+        },
+      },
+    }));
     const news = await prisma.news.create({
       data: {
         ...data,
         pubDate: data.is_graft ? null : new Date(),
+        tags: {
+          create: tags,
+        },
       },
     });
     return news;
@@ -37,6 +47,29 @@ export async function updateNew(
   data: Partial<Omit<NewType, 'id'>>,
 ) {
   try {
+    const tags = data.tags?.map((item) => ({
+      where: {
+        new_id_tag_id: {
+          new_id: id,
+          tag_id: Number(item),
+        },
+      },
+      update: {
+        tag: {
+          connect: {
+            id: Number(item),
+          },
+        },
+      },
+      create: {
+        tag: {
+          connect: {
+            id: Number(item),
+          },
+        },
+      },
+    }));
+
     const news = await prisma.news.update({
       where: {
         id,
@@ -44,8 +77,19 @@ export async function updateNew(
       data: {
         ...data,
         pubDate: data.is_graft ? null : new Date(),
+        tags: {
+          upsert: tags,
+        },
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
+
     return news;
   } catch (error) {
     console.log('UPDATE NEW ERROR', error);
@@ -102,6 +146,11 @@ export async function getNew(id: number) {
       },
       include: {
         media: true,
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
     return news;
@@ -112,10 +161,10 @@ export async function getNew(id: number) {
 export async function getNews(
   page: number = 1,
   onlyPublished = false,
+  inNotHidden = false,
   query = '',
 ) {
   try {
-    //TODO: add pagination, filtering, searching
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
     const news = await prisma.news.findMany({
@@ -126,6 +175,12 @@ export async function getNews(
                 pubDate: {
                   not: null,
                 },
+              }
+            : {},
+
+          inNotHidden
+            ? {
+                is_hidden: false,
               }
             : {},
 
@@ -159,6 +214,11 @@ export async function getNews(
                 pubDate: {
                   not: null,
                 },
+              }
+            : {},
+          inNotHidden
+            ? {
+                is_hidden: false,
               }
             : {},
           query

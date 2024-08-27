@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SearchBar } from '~/components/SearchBar';
 
 type SiteLayout = {
   children: React.ReactNode;
 };
 export function SiteLayout({ children }: SiteLayout) {
+  const [query, setQuery] = useState('');
   return (
     <>
       <nav className="fixed top-0  w-full bg-white border-b-2 border-gray-200 ">
@@ -16,7 +17,7 @@ export function SiteLayout({ children }: SiteLayout) {
               className="h-8 w-auto max-sm:hidden"
             />
             <div className="flex  shrink-0 items-center ml-4">
-              <SearchBar />
+              <SearchBar query={query} onChange={setQuery} />
             </div>
           </div>
         </div>
