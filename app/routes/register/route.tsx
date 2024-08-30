@@ -82,8 +82,8 @@ export default function Register() {
   const [role, setRole] = useState<string>(Role.USER);
 
   const roles = [
-    { id: '1', value: Role.ADMIN },
-    { id: '2', value: Role.USER },
+    { id: 'Admin', value: Role.ADMIN },
+    { id: 'User', value: Role.USER },
   ];
 
   const handleSelectRole = (value: SelectItemType | SelectItemType[]) => {

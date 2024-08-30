@@ -6,6 +6,7 @@ import { prepareUsers } from '~/utils/prepareUsers';
 import { getUserSession } from '~/api/auth.server';
 import { capitalize } from '~/utils/capitalize';
 import { Role } from '~/types/user.types';
+import { Button } from '~/components/Button';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getUserSession(request);
@@ -51,7 +52,15 @@ export default function Users() {
   const headings = [{ title: 'Name' }, { title: 'Role' }];
 
   return (
-    <>
+    <div className="flex gap-6 flex-col">
+      <div className={'flex justify-end'}>
+        <Button
+          label={'Create new'}
+          onClick={() => navigate('create')}
+          aria-label="Create news"
+          disabled={!isAdmin}
+        />
+      </div>
       <Table
         headings={headings}
         rows={users}
@@ -69,6 +78,6 @@ export default function Users() {
         aria-label="Users table"
         disabled={!isAdmin}
       />
-    </>
+    </div>
   );
 }

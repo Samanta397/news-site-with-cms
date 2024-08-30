@@ -27,7 +27,7 @@ export async function createUser(data: RegisterForm) {
 
 export async function updateUser({ id, ...data }: Partial<UpdateUserData>) {
   try {
-    await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: Number(id),
       },

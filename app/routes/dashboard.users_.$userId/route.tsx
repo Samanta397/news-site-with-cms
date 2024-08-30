@@ -9,8 +9,8 @@ import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
 import { Select, SelectItemType } from '~/components/Select';
 import { useState } from 'react';
-import { Role } from '~/types/user.types';
-import { deleteUser, getUser, updateUser } from '~/api/user.server';
+import { RegisterForm, Role } from '~/types/user.types';
+import { createUser, deleteUser, getUser, updateUser } from '~/api/user.server';
 import { getUserSession } from '~/api/auth.server';
 import { RegisterFields } from '~/utils/validation/schema';
 import { capitalize } from '~/utils/capitalize';
@@ -24,15 +24,27 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return;
   }
 
-  const user = await getUser(Number(userId));
-
   const sessionUser = await getUser(Number(session.get('userId')));
 
   const isAdmin = sessionUser
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  return json({ userId, user, isAdmin });
+  if (userId === 'create') {
+    return json({
+      userId,
+      user: null,
+      isAdmin,
+    });
+  } else {
+    const user = await getUser(Number(userId));
+
+    return json({
+      userId,
+      user,
+      isAdmin,
+    });
+  }
 };
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -66,7 +78,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       });
     }
 
-    await updateUser(fields);
+    if (fields.id === 'create') {
+      const { id, ...createData } = fields;
+
+      const createdUser = await createUser(createData as RegisterForm);
+      if (createdUser) {
+        return redirect(`/dashboard/users/${createdUser.id}`);
+      }
+    } else {
+      const updatedUser = await updateUser(fields);
+      if (updatedUser) {
+        return redirect(`/dashboard/users/${updatedUser.id}`);
+      }
+    }
   }
 
   return null;
@@ -83,8 +107,8 @@ export default function User() {
   const [role, setRole] = useState<string>(user?.role || Role.USER);
 
   const roles = [
-    { id: '1', value: Role.ADMIN },
-    { id: '2', value: Role.USER },
+    { id: 'Admin', value: Role.ADMIN },
+    { id: 'User', value: Role.USER },
   ];
 
   const handleSelectRole = (value: SelectItemType | SelectItemType[]) => {
