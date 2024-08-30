@@ -1,4 +1,10 @@
-import { Form, json, redirect, useLoaderData } from '@remix-run/react';
+import {
+  Form,
+  json,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from '@remix-run/react';
 import { Card } from '~/components/Card';
 import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
@@ -79,6 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Settings() {
   const { settings, isAdmin } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>() as ActionData;
   const [amount, setAmount] = useState<number>(settings?.amount_per_page || 0);
 
   return (
@@ -109,6 +116,7 @@ export default function Settings() {
               type={'number'}
               onChange={setAmount}
               aria-label="Amount per page input"
+              errorMessage={actionData?.errors?.fieldErrors?.amount_per_page}
             />
           </Card>
         </div>
@@ -117,6 +125,7 @@ export default function Settings() {
             type={'submit'}
             label={`Save`}
             aria-label="Save settings changes"
+            disabled={!isAdmin}
           />
         </div>
       </Form>

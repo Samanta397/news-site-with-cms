@@ -100,8 +100,6 @@ export default function Register() {
     }
   };
 
-  //TODO: add error state to FormField
-
   return (
     <Layout>
       <Card centered>
@@ -135,6 +133,7 @@ export default function Register() {
               required
               onChange={setFirstName}
               aria-label="First name input"
+              errorMessage={actionData?.errors?.fieldErrors?.first_name}
             />
             <FormField
               name="last_name"
@@ -144,6 +143,7 @@ export default function Register() {
               required
               onChange={setLastName}
               aria-label="Last name input"
+              errorMessage={actionData?.errors?.fieldErrors?.last_name}
             />
             <FormField
               name="email"
@@ -154,6 +154,7 @@ export default function Register() {
               required
               onChange={setEmail}
               aria-label="Email input"
+              errorMessage={actionData?.errors?.fieldErrors?.email}
             />
 
             <FormField
@@ -165,6 +166,7 @@ export default function Register() {
               required
               onChange={setPassword}
               aria-label="Password input"
+              errorMessage={actionData?.errors?.fieldErrors?.password}
             />
 
             <Select

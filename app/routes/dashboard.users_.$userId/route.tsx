@@ -21,7 +21,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const { userId } = params;
   if (!userId) {
-    //TODO: add logic when userId not exists
     return;
   }
 
@@ -192,13 +191,14 @@ export default function User() {
             label={'Delete'}
             onClick={() => handleDelete(userId)}
             tone={'critical'}
-            // disabled={!isAdmin}
+            disabled={!user || !isAdmin}
             aria-label="Delete user"
           />
           <Button
             type={'submit'}
             label={'Save'}
             aria-label="Save user changes"
+            disabled={!isAdmin}
           />
         </div>
       </Form>

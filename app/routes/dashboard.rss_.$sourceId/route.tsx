@@ -11,6 +11,7 @@ import {
   Form,
   json,
   redirect,
+  useActionData,
   useLoaderData,
   useSubmit,
 } from '@remix-run/react';
@@ -26,7 +27,7 @@ import {
   updateNewsSource,
 } from '~/api/rss.server';
 import { formatDate } from '~/utils/formatDate';
-import { SourceFields } from '~/utils/validation/schema';
+import { SourceFields, SourceFieldsErrors } from '~/utils/validation/schema';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -34,7 +35,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const { sourceId } = params;
   if (!sourceId) {
-    //TODO: add logic when sourceId not exists
     return;
   }
 
@@ -78,6 +78,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
+type ActionData = {
+  fields: SourceFields;
+  errors?: SourceFieldsErrors & {
+    error: string;
+    status: number;
+  };
+};
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries()) as SourceFields;
@@ -87,10 +95,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     await deleteNewsSource(Number(fields.id));
     return redirect('/dashboard/rss');
   }
-  //
-  // if ('actionType' in fields && fields.actionType === 'restore') {
-  //   await restoreNew(Number(fields.id));
-  // }
 
   if (!result.success) {
     return json({
@@ -99,8 +103,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  // const createdImage = await saveMedia(imageName);
-  //
   const data = {
     id: fields.id,
     url: fields.url,
@@ -133,6 +135,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Source() {
   const { sourceId, isAdmin, source } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
   const [url, setUrl] = useState<string>(source?.url || '');
@@ -215,6 +218,7 @@ export default function Source() {
               required
               onChange={setName}
               aria-label="Name input"
+              errorMessage={actionData?.errors?.fieldErrors?.name}
             />
 
             <FormField
@@ -225,6 +229,7 @@ export default function Source() {
               required
               onChange={setUrl}
               aria-label="Source url input"
+              errorMessage={actionData?.errors?.fieldErrors?.url}
             />
 
             <FormField
@@ -236,6 +241,7 @@ export default function Source() {
               required
               onChange={setInterval}
               aria-label="Import interval input"
+              errorMessage={actionData?.errors?.fieldErrors?.import_interval}
             />
           </Card>
 
@@ -291,13 +297,14 @@ export default function Source() {
             label={'Delete'}
             onClick={() => handleDelete(sourceId)}
             tone={'critical'}
-            disabled={!source} //!isAdmin
+            disabled={!source || !isAdmin}
             aria-label="Delete source"
           />
           <Button
             type={'submit'}
             label={'Save'}
             aria-label="Save source changes"
+            disabled={!isAdmin}
           />
         </div>
       </Form>

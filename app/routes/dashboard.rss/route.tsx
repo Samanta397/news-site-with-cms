@@ -62,6 +62,7 @@ export default function Rss() {
           label={'Create source'}
           onClick={() => navigate('create')}
           aria-label="Create a new rss"
+          disabled={!isAdmin}
         />
       </div>
 
@@ -83,6 +84,7 @@ export default function Rss() {
             navigate(`/dashboard/rss?page=${paginationInfo.page - 1}`),
         }}
         aria-label="RSS table"
+        disabled={!isAdmin}
       />
     </div>
   );

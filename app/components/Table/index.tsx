@@ -31,6 +31,7 @@ type TableProps = {
   onSelect?: (value: string[]) => void;
   bulkAction?: { label: string; onAction: (value: string[]) => void };
   pagination?: PaginationType;
+  disabled?: boolean;
 };
 
 export function Table({
@@ -44,6 +45,7 @@ export function Table({
   onSelect = () => {},
   bulkAction,
   pagination,
+  disabled = false,
 }: TableProps) {
   const [selectedAll, setSelectedAll] = useState<boolean>(false);
 
@@ -98,6 +100,7 @@ export function Table({
                   bulk={true}
                   onClick={() => bulkAction?.onAction(selected)}
                   aria-label="Bulk action"
+                  disabled={disabled}
                 />
               </th>
             )}

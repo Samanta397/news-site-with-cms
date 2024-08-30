@@ -9,16 +9,24 @@ import {
 } from '@remix-run/node';
 import { getNews } from '~/api/news.server';
 import { prepareNews } from '~/utils/prepareNews';
+import { getUserSession } from '~/api/auth.server';
+import { getUser } from '~/api/user.server';
+import { capitalize } from '~/utils/capitalize';
+import { Role } from '~/types/user.types';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const session = await getUserSession(request);
+  const sessionUser = await getUser(Number(session.get('userId')));
+  const isAdmin = sessionUser
+    ? capitalize(sessionUser.role) === Role.ADMIN
+    : false;
+
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
-  const sortBy = url.searchParams.get('sortBy') || 'desc';
-  const searchQuery = url.searchParams.get('query') || '';
 
   const { news, paginationInfo } = await getNews(page);
 
-  return json({ news: prepareNews(news || []), paginationInfo });
+  return json({ news: prepareNews(news || []), paginationInfo, isAdmin });
 };
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -63,7 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function News() {
-  const { news, paginationInfo } = useLoaderData<typeof loader>();
+  const { news, paginationInfo, isAdmin } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const headings = [
@@ -80,6 +88,7 @@ export default function News() {
           label={'Create new'}
           onClick={() => navigate('create')}
           aria-label="Create news"
+          disabled={!isAdmin}
         />
       </div>
 
@@ -98,6 +107,7 @@ export default function News() {
             navigate(`/dashboard/news?page=${paginationInfo.page - 1}`),
         }}
         aria-label="News table"
+        disabled={!isAdmin}
       />
     </div>
   );

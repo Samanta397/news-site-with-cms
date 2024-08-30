@@ -94,8 +94,6 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  //TODO: add error state to FormField
-
   return (
     <Layout>
       <Card centered>
@@ -130,6 +128,7 @@ export default function Login() {
               required
               onChange={setEmail}
               aria-label="Email input"
+              errorMessage={actionData?.errors?.fieldErrors?.email}
             />
 
             <FormField
@@ -141,6 +140,7 @@ export default function Login() {
               required
               onChange={setPassword}
               aria-label="Password input"
+              errorMessage={actionData?.errors?.fieldErrors?.password}
             />
 
             <Button

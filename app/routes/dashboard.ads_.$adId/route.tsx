@@ -7,6 +7,7 @@ import {
   Form,
   json,
   redirect,
+  useActionData,
   useLoaderData,
   useSubmit,
 } from '@remix-run/react';
@@ -48,10 +49,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const page = Number(url.searchParams.get('page')) || 1;
 
   if (!adId) {
-    //TODO: add logic when newsId not exists
     return;
   }
-  //TODO: add search param for paginating news
 
   const sessionUser = await getUser(Number(session.get('userId')));
   const isAdmin = sessionUser
@@ -172,7 +171,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Ad() {
   const { adId, advertisement, isAdmin, media, news, newsPaginationInfo } =
     useLoaderData<typeof loader>();
-  // const actionData = useActionData<typeof action>() as ActionData;
+  const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
   const [title, setTitle] = useState<string>(advertisement?.title || '');
@@ -202,8 +201,6 @@ export default function Ad() {
     advertisement?.media?.id.toString() || '0',
   );
   const [query, setQuery] = useState('');
-
-  //TODO: add errors to form fields and disable buttons if user is not Admin
 
   useEffect(() => {
     if (advertisement && advertisement.new_id && advertisement.new) {
@@ -275,6 +272,7 @@ export default function Ad() {
               required
               onChange={setTitle}
               aria-label="Title input"
+              errorMessage={actionData?.errors?.fieldErrors?.title}
             />
             <FormField
               name="content"
@@ -284,6 +282,7 @@ export default function Ad() {
               required
               onChange={setContent}
               aria-label="Content input"
+              errorMessage={actionData?.errors?.fieldErrors?.content}
             />
 
             <FormField
@@ -294,6 +293,7 @@ export default function Ad() {
               required
               onChange={setLink}
               aria-label="Link input"
+              errorMessage={actionData?.errors?.fieldErrors?.link}
             />
 
             <DropZone
@@ -390,6 +390,7 @@ export default function Ad() {
                 value={regExp}
                 onChange={setRegExp}
                 aria-label="Regular expression input"
+                errorMessage={actionData?.errors?.fieldErrors?.regExp}
               />
             )}
           </Card>
@@ -399,13 +400,14 @@ export default function Ad() {
             label={'Delete'}
             onClick={() => handleDelete(adId)}
             tone={'success'}
-            disabled={!advertisement} //!isAdmin
+            disabled={!advertisement || !isAdmin}
             aria-label="Delete advertisement"
           />
           <Button
             type={'submit'}
             label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
             aria-label="Save advertisement changes"
+            disabled={!isAdmin}
           />
         </div>
       </Form>

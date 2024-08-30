@@ -54,7 +54,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const page = Number(url.searchParams.get('page')) || 1;
 
   if (!newsId) {
-    //TODO: add logic when newsId not exists
     return;
   }
 
@@ -187,8 +186,6 @@ export default function New() {
     news?.media?.id.toString() || '0',
   );
 
-  //TODO: add errors to form fields and disable buttons if user is not Admin
-
   const handleDelete = (id: string) => {
     submit(
       {
@@ -274,15 +271,16 @@ export default function New() {
               required
               onChange={setTitle}
               aria-label="Title input"
+              errorMessage={actionData?.errors?.fieldErrors?.title}
             />
             <FormField
               name="content"
               htmlFor="content"
               label="Content"
               value={content}
-              required
               onChange={setContent}
               aria-label="Content input"
+              errorMessage={actionData?.errors?.fieldErrors?.content}
             />
 
             <DropZone
@@ -301,9 +299,9 @@ export default function New() {
               htmlFor="author"
               label="Author"
               value={author}
-              required
               onChange={setAuthor}
               aria-label="Author input"
+              errorMessage={actionData?.errors?.fieldErrors?.author}
             />
 
             <Select
@@ -352,7 +350,7 @@ export default function New() {
               news?.is_deleted ? handleRestore(newsId) : handleDelete(newsId)
             }
             tone={news?.is_deleted ? 'success' : 'critical'}
-            disabled={!news} //!isAdmin
+            disabled={!news || !isAdmin}
             aria-label={
               news?.is_deleted ? 'Restore news' : 'Move news to trash'
             }
@@ -361,6 +359,7 @@ export default function New() {
             type={'submit'}
             label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
             aria-label="Save news changes"
+            disabled={!isAdmin}
           />
         </div>
       </Form>

@@ -47,9 +47,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
-  const sortBy = url.searchParams.get('sortBy') || 'desc';
-  const searchQuery = url.searchParams.get('query') || '';
-
   const { tags, paginationInfo } = await getTags(page);
 
   return json({ tags: prepareTags(tags || []), isAdmin, paginationInfo });
@@ -83,7 +80,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     fields.actionType === 'delete' &&
     'ids' in fields
   ) {
-    console.log(fields);
     const ids = fields.ids as string;
     await deleteTags(ids.split(',').map((item) => Number(item)));
     return json({ toast: { message: 'Tags deleted', type: 'success' } });
@@ -146,8 +142,6 @@ export default function Tags() {
     setSelectedTags([]);
   };
 
-  //TODO: add errors to form fields and disable buttons if user is not Admin
-
   useEffect(() => {
     if (actionData && actionData.toast) {
       // notify on a toast message
@@ -166,6 +160,7 @@ export default function Tags() {
           label={'Create tags'}
           onClick={() => setIsOpen(true)}
           aria-label="Create tag"
+          disabled={!isAdmin}
         />
       </div>
 
@@ -194,6 +189,7 @@ export default function Tags() {
             navigate(`/dashboard/tags?page=${paginationInfo.page - 1}`),
         }}
         aria-label="Tags table"
+        disabled={!isAdmin}
       />
 
       <Modal isOpen={isOpen} onClose={setIsOpen} aria-label="Tags modal">
@@ -217,6 +213,7 @@ export default function Tags() {
             required
             onChange={setTagName}
             aria-label="Tag name input"
+            errorMessage={actionData?.errors?.fieldErrors?.tagName}
           />
 
           <div className={'flex justify-end'}>
@@ -224,6 +221,7 @@ export default function Tags() {
               type={'submit'}
               label={'Save'}
               aria-label="Save tag changes"
+              disabled={!isAdmin}
             />
           </div>
         </Form>

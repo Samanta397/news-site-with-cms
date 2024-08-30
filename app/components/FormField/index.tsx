@@ -1,8 +1,4 @@
-import {
-  ChangeEvent,
-  HTMLInputTypeAttribute,
-  InputHTMLAttributes,
-} from 'react';
+import { ChangeEvent, HTMLInputTypeAttribute } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 interface FormFieldProps {
@@ -14,6 +10,7 @@ interface FormFieldProps {
   onChange?: (value: any) => void;
   required?: boolean;
   hidden?: boolean;
+  errorMessage?: string[];
 }
 
 export function FormField({
@@ -25,6 +22,7 @@ export function FormField({
   onChange = () => {},
   required = false,
   hidden = false,
+  errorMessage,
 }: FormFieldProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (type === 'number') {
@@ -36,8 +34,6 @@ export function FormField({
 
   const styles = twMerge('w-full', hidden && 'hidden');
 
-  //TODO: add require state
-  //TODO: add error state
   return (
     <div className={styles}>
       <label
@@ -45,17 +41,20 @@ export function FormField({
         className="block text-sm font-medium leading-8 text-gray-900"
       >
         {label}
+        {required && <span className={'ml-0.5 text-xs text-red-500'}>*</span>}
       </label>
       <input
         onChange={handleChange}
         type={type}
         id={htmlFor}
         name={name}
-        className="block w-full rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        className={`block w-full rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${errorMessage ? 'ring-red-300' : ''}`}
         value={value}
-        required
         role={name}
       />
+      <p className={'text-xs text-red-500'}>
+        {errorMessage ? errorMessage[0] : ''}
+      </p>
     </div>
   );
 }

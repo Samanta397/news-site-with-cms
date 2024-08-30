@@ -1,10 +1,19 @@
 import { json, useLoaderData, useNavigate } from '@remix-run/react';
 import { Table } from '~/components/Table';
 import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { getUsers } from '~/api/user.server';
+import { getUser, getUsers } from '~/api/user.server';
 import { prepareUsers } from '~/utils/prepareUsers';
+import { getUserSession } from '~/api/auth.server';
+import { capitalize } from '~/utils/capitalize';
+import { Role } from '~/types/user.types';
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getUserSession(request);
+  const sessionUser = await getUser(Number(session.get('userId')));
+  const isAdmin = sessionUser
+    ? capitalize(sessionUser.role) === Role.ADMIN
+    : false;
+
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
 
@@ -13,6 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     users: prepareUsers(users || []),
     paginationInfo,
+    isAdmin,
   });
 }
 
@@ -36,7 +46,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export default function Users() {
   const navigate = useNavigate();
-  const { users, paginationInfo } = useLoaderData<typeof loader>();
+  const { users, paginationInfo, isAdmin } = useLoaderData<typeof loader>();
 
   const headings = [{ title: 'Name' }, { title: 'Role' }];
 
@@ -57,6 +67,7 @@ export default function Users() {
             navigate(`/dashboard/users?page=${paginationInfo.page - 1}`),
         }}
         aria-label="Users table"
+        disabled={!isAdmin}
       />
     </>
   );
