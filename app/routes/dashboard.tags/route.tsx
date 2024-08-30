@@ -11,7 +11,11 @@ import {
   useSubmit,
 } from '@remix-run/react';
 import { FormField } from '~/components/FormField';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
@@ -49,6 +53,24 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { tags, paginationInfo } = await getTags(page);
 
   return json({ tags: prepareTags(tags || []), isAdmin, paginationInfo });
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Tags page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Tags page',
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

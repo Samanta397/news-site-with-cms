@@ -2,7 +2,11 @@ import { Form, json, redirect, useLoaderData } from '@remix-run/react';
 import { Card } from '~/components/Card';
 import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
@@ -14,6 +18,20 @@ import {
 } from '~/utils/validation/schema';
 import { useState } from 'react';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: `Settings page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Settings page',
+    },
+  ];
+};
 
 type ActionData = {
   fields: SettingsFields;

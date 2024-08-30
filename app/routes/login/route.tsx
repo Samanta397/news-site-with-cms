@@ -4,11 +4,29 @@ import { Card } from '~/components/Card';
 import { Form, json, Link, redirect, useActionData } from '@remix-run/react';
 import { Button } from '~/components/Button';
 import { useState } from 'react';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { LoginFields, LoginFieldsErrors } from '~/utils/validation/schema';
 import { Alert, AlertStatus } from '~/components/Alert';
 import { getUserSession, login } from '~/api/auth.server';
 import { commitSession, getSession } from '~/session';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Login | News CMS' },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Login to News CMS admin panel',
+    },
+  ];
+};
 
 type ActionData = {
   fields: LoginFields;

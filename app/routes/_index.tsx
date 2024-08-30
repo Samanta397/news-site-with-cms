@@ -18,13 +18,6 @@ import { PrismaNewWithEntities } from '~/types/new.types';
 import { Jsonify } from '@remix-run/server-runtime/dist/jsonify';
 import { PrismaAdvertisementWithEntities } from '~/types/ads.types';
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: 'New Remix App' },
-    { name: 'description', content: 'Welcome to Remix!' },
-  ];
-};
-
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getUserSession(request);
 
@@ -100,6 +93,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ads: adsWithMedia,
   };
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `News site | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News site with CMS',
+    },
+    {
+      name: 'description',
+      content: 'News site main page',
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getUserSession(request);

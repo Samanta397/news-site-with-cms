@@ -1,4 +1,8 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
@@ -39,6 +43,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
+  //TODO: add tags
+
   // const tags = await getTags();
   //
   if (sourceId === 'create') {
@@ -56,6 +62,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       isAdmin,
     });
   }
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Single rss page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: `${data?.sourceId === 'create' ? 'Create rss page' : `RSS id ${data?.sourceId}`}`,
+    },
+  ];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

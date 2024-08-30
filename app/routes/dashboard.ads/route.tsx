@@ -1,6 +1,6 @@
 import { Button } from '~/components/Button';
 import { Table } from '~/components/Table';
-import { json, LoaderFunctionArgs } from '@remix-run/node';
+import { json, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useLoaderData, useNavigate } from '@remix-run/react';
 import { getAds } from '~/api/ads.server';
 import { prepareAds } from '~/utils/prepareAds';
@@ -17,6 +17,24 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     advertisements: prepareAds(advertisements || []),
     paginationInfo,
   });
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Advertisements page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Advertisements page',
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
 };
 
 export default function Ads() {

@@ -1,4 +1,9 @@
-import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { Form, redirect, useLoaderData, useSubmit } from '@remix-run/react';
 import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
@@ -29,6 +34,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     : false;
 
   return json({ userId, user, isAdmin });
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Single user page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: `${data?.userId === 'create' ? 'Create user page' : `User id ${data?.userId}`}`,
+    },
+  ];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

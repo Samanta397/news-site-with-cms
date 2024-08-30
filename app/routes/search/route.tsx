@@ -1,5 +1,9 @@
 import { SiteLayout } from '~/components/SiteLayout';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { NewsList } from '~/components/NewsList';
 import { Pagination } from '~/components/Pagination';
@@ -42,6 +46,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     paginationInfo,
   };
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `News site | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News site with CMS',
+    },
+    {
+      name: 'description',
+      content: `News site search page.`,
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getUserSession(request);

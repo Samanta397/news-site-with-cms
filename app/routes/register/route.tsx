@@ -6,7 +6,7 @@ import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
 import { Select, SelectItemType } from '~/components/Select';
 import { Role } from '~/types/user.types';
-import { ActionFunctionArgs } from '@remix-run/node';
+import { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
 import {
   RegisterFields,
   RegisterFieldsErrors,
@@ -14,6 +14,20 @@ import {
 import { Alert, AlertStatus } from '~/components/Alert';
 import { getUserSession, register } from '~/api/auth.server';
 import { commitSession, getSession } from '~/session';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Registration | News CMS' },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Register to News CMS admin panel',
+    },
+  ];
+};
 
 type ActionData = {
   fields: RegisterFields;

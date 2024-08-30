@@ -1,7 +1,12 @@
 import { Table } from '~/components/Table';
 import { Button } from '~/components/Button';
 import { useLoaderData, useNavigate } from '@remix-run/react';
-import { ActionFunctionArgs, json, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getNews } from '~/api/news.server';
 import { prepareNews } from '~/utils/prepareNews';
 
@@ -14,6 +19,24 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { news, paginationInfo } = await getNews(page);
 
   return json({ news: prepareNews(news || []), paginationInfo });
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `News page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'News page',
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

@@ -11,7 +11,11 @@ import {
   useLoaderData,
   useSubmit,
 } from '@remix-run/react';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { NewsFields, NewsFieldsErrors } from '~/utils/validation/schema';
 import {
@@ -86,6 +90,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       tagsPaginationInfo: paginationInfo,
     });
   }
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Single news page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: `${data?.newsId === 'create' ? 'Create news page' : `User id ${data?.newsId}`}`,
+    },
+  ];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

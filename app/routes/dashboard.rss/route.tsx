@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
+import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
@@ -28,6 +28,24 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     isAdmin,
     paginationInfo,
   });
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `RSS page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'RSS page',
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
 };
 
 export default function Rss() {

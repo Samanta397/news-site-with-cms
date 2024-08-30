@@ -1,6 +1,6 @@
 import { json, useLoaderData, useNavigate } from '@remix-run/react';
 import { Table } from '~/components/Table';
-import { LoaderFunctionArgs } from '@remix-run/node';
+import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { getUsers } from '~/api/user.server';
 import { prepareUsers } from '~/utils/prepareUsers';
 
@@ -15,6 +15,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     paginationInfo,
   });
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Users page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Users page',
+    },
+    {
+      name: 'robots',
+      content: `Page ${data?.paginationInfo.page}`,
+    },
+  ];
+};
 
 export default function Users() {
   const navigate = useNavigate();

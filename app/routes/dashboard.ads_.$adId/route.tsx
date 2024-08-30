@@ -10,7 +10,11 @@ import {
   useLoaderData,
   useSubmit,
 } from '@remix-run/react';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/node';
 import { getUserSession } from '~/api/auth.server';
 import { AdsFields, AdsFieldsErrors } from '~/utils/validation/schema';
 import { getNew, getNews } from '~/api/news.server';
@@ -86,6 +90,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       newsPaginationInfo: paginationInfo,
     });
   }
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `Single advertisement page | News CMS` },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: `${data?.adId === 'create' ? 'Create advertisement page' : `User id ${data?.adId}`}`,
+    },
+  ];
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
