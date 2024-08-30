@@ -11,7 +11,7 @@ type SingleNewType = {
 
 export function SingleNew({ item }: SingleNewType) {
   return (
-    <div className={'flex p-4 '}>
+    <div className={'flex p-4 '} aria-label={`Single new: ${item.title}`}>
       <img
         src={item.media ? item.mediaFile : emptyImage}
         alt="sdfsdf"

@@ -63,7 +63,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     session.set('userId', registeredData.id.toString());
   }
 
-  return redirect('/dashboard', {
+  return redirect('/dashboard/news', {
     headers: {
       'Set-Cookie': await commitSession(session),
     },
@@ -126,7 +126,7 @@ export default function Register() {
         )}
 
         <div className="mt-6 sm:mx-auto min-w-80 sm:w-full sm:max-w-sm">
-          <Form className="space-y-4" method="post">
+          <Form className="space-y-4" method="post" role={'register_form'}>
             <FormField
               name="first_name"
               htmlFor="firstName"
@@ -134,6 +134,7 @@ export default function Register() {
               value={firstName}
               required
               onChange={setFirstName}
+              aria-label="First name input"
             />
             <FormField
               name="last_name"
@@ -142,6 +143,7 @@ export default function Register() {
               value={lastName}
               required
               onChange={setLastName}
+              aria-label="Last name input"
             />
             <FormField
               name="email"
@@ -151,6 +153,7 @@ export default function Register() {
               value={email}
               required
               onChange={setEmail}
+              aria-label="Email input"
             />
 
             <FormField
@@ -161,6 +164,7 @@ export default function Register() {
               value={password}
               required
               onChange={setPassword}
+              aria-label="Password input"
             />
 
             <Select
@@ -169,6 +173,7 @@ export default function Register() {
               options={roles}
               value={roles.find((item) => role === item.value) || roles[1]}
               onSelect={handleSelectRole}
+              aria-label="Role selector"
             />
 
             <Button
@@ -176,6 +181,7 @@ export default function Register() {
               label={'Sign in'}
               onClick={() => console.log('Sing in')}
               fullWidth
+              aria-label="Register"
             />
           </Form>
 
@@ -185,6 +191,9 @@ export default function Register() {
               to="/login"
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 ml-1"
               onClick={() => setState(state == 'login' ? 'register' : 'login')}
+              aria-label={
+                state === 'login' ? 'Go to register account' : 'Go to login'
+              }
             >
               {state === 'login' ? 'Sign up' : 'Sign in'}
             </Link>

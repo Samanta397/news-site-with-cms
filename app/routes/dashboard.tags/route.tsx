@@ -162,7 +162,11 @@ export default function Tags() {
   return (
     <div className="flex gap-6 flex-col ">
       <div className={'flex justify-end'}>
-        <Button label={'Create tags'} onClick={() => setIsOpen(true)} />
+        <Button
+          label={'Create tags'}
+          onClick={() => setIsOpen(true)}
+          aria-label="Create tag"
+        />
       </div>
 
       <Table
@@ -189,10 +193,11 @@ export default function Tags() {
           onPrevious: () =>
             navigate(`/dashboard/tags?page=${paginationInfo.page - 1}`),
         }}
+        aria-label="Tags table"
       />
 
-      <Modal isOpen={isOpen} onClose={setIsOpen}>
-        <Form className="space-y-4" method="post">
+      <Modal isOpen={isOpen} onClose={setIsOpen} aria-label="Tags modal">
+        <Form className="space-y-4" method="post" role={'tags_form'}>
           <FormField
             name="id"
             htmlFor="id"
@@ -200,6 +205,7 @@ export default function Tags() {
             value={editTag || 'create'}
             required
             hidden
+            aria-label="Id input"
           />
           <FormField
             name="tagName"
@@ -210,10 +216,15 @@ export default function Tags() {
             }
             required
             onChange={setTagName}
+            aria-label="Tag name input"
           />
 
           <div className={'flex justify-end'}>
-            <Button type={'submit'} label={'Save'} />
+            <Button
+              type={'submit'}
+              label={'Save'}
+              aria-label="Save tag changes"
+            />
           </div>
         </Form>
       </Modal>

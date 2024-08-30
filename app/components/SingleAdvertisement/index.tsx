@@ -10,7 +10,10 @@ type SingleAdvertisementType = {
 
 export function SingleAdvertisement({ item }: SingleAdvertisementType) {
   return (
-    <div className={'flex p-4 '}>
+    <div
+      className={'flex p-4 '}
+      aria-label={`Single advertisement: ${item.title}`}
+    >
       <img
         src={item.media ? item.mediaFile : emptyImage}
         alt="sdfsdf"

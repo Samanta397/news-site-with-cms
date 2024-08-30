@@ -38,6 +38,7 @@ export function Alert({
     <div
       className={`${config[status].style} border-t-4 rounded-b px-4 py-3 shadow-md`}
       role="alert"
+      aria-label={`Alert message: ${title}`}
     >
       <div className="flex">
         <div className="py-1">{config[status].icon}</div>

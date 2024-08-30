@@ -229,6 +229,7 @@ export default function New() {
   return (
     <div className={'flex flex-col gap-10'}>
       <Breadcrumbs
+        aria-label="Breadcrumbs"
         breadcrumbs={[
           { href: '/dashboard/news', label: 'News' },
           {
@@ -237,7 +238,12 @@ export default function New() {
           },
         ]}
       />
-      <Form className="space-y-4" method="post" encType="multipart/form-data">
+      <Form
+        className="space-y-4"
+        method="post"
+        encType="multipart/form-data"
+        role="news_form"
+      >
         <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>
             <FormField
@@ -247,6 +253,7 @@ export default function New() {
               value={newsId}
               required
               hidden
+              aria-label="Id input"
             />
 
             <FormField
@@ -256,6 +263,7 @@ export default function New() {
               value={mediaId}
               // required
               hidden
+              aria-label="Image id input"
             />
 
             <FormField
@@ -265,6 +273,7 @@ export default function New() {
               value={title}
               required
               onChange={setTitle}
+              aria-label="Title input"
             />
             <FormField
               name="content"
@@ -273,6 +282,7 @@ export default function New() {
               value={content}
               required
               onChange={setContent}
+              aria-label="Content input"
             />
 
             <DropZone
@@ -281,6 +291,7 @@ export default function New() {
               htmlFor={'image'}
               media={media}
               onChange={setMediaId}
+              aria-label="Drop zone"
             />
           </Card>
 
@@ -292,6 +303,7 @@ export default function New() {
               value={author}
               required
               onChange={setAuthor}
+              aria-label="Author input"
             />
 
             <Select
@@ -312,6 +324,7 @@ export default function New() {
                 onPrevious: () =>
                   submit({ page: tagsPaginationInfo.page - 1, query }),
               }}
+              aria-label="Tags selector"
             />
 
             <Checkbox
@@ -320,6 +333,7 @@ export default function New() {
               label={'Publish'}
               checked={isPublish}
               onChange={() => setIsPublish((prevState) => !prevState)}
+              aria-label="Is publish checkbox"
             />
             <Checkbox
               name={'is_hidden'}
@@ -327,6 +341,7 @@ export default function New() {
               label={'Hidden mode'}
               checked={isHidden}
               onChange={() => setIsHidden((prevState) => !prevState)}
+              aria-label="Is hidden checkbox"
             />
           </Card>
         </div>
@@ -338,10 +353,14 @@ export default function New() {
             }
             tone={news?.is_deleted ? 'success' : 'critical'}
             disabled={!news} //!isAdmin
+            aria-label={
+              news?.is_deleted ? 'Restore news' : 'Move news to trash'
+            }
           />
           <Button
             type={'submit'}
             label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
+            aria-label="Save news changes"
           />
         </div>
       </Form>

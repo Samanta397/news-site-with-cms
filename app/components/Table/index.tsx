@@ -58,7 +58,10 @@ export function Table({
   return (
     <div className="relative overflow-x-auto bg-gray-300 shadow-md sm:rounded-lg">
       <table className="w-full text-sm text-left rtl:text-right text-gray-500  border-2  overflow-hidden rounded-lg">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+        <thead
+          className="text-xs text-gray-700 uppercase bg-gray-100"
+          aria-label={'table head'}
+        >
           <tr className="border-b">
             {selectable && (
               <th
@@ -94,6 +97,7 @@ export function Table({
                   tone={'critical'}
                   bulk={true}
                   onClick={() => bulkAction?.onAction(selected)}
+                  aria-label="Bulk action"
                 />
               </th>
             )}
@@ -110,7 +114,7 @@ export function Table({
               ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody aria-label={'table'}>
           {rows.map(({ id, ...row }) => (
             <tr
               className="bg-white border-b hover:bg-gray-50"
@@ -133,6 +137,7 @@ export function Table({
                           : [...selected, id],
                       )
                     }
+                    aria-label={`Select item with id ${id}`}
                   />
                 </td>
               )}
@@ -159,7 +164,7 @@ export function Table({
           )}
         </tbody>
         {pagination && (
-          <tfoot className={'bg-slate-50'}>
+          <tfoot className={'bg-slate-50'} aria-label={'Table pagination'}>
             <tr>
               <td
                 className={'p-2'}
@@ -171,12 +176,14 @@ export function Table({
                     tone={'primary'}
                     disabled={!pagination.hasPrevious}
                     onClick={pagination.onPrevious}
+                    aria-label={'Previous page'}
                   />
                   <Button
                     icon={<ArrowRightIcon />}
                     tone={'primary'}
                     disabled={!pagination.hasNext}
                     onClick={pagination.onNext}
+                    aria-label={'Next page'}
                   />
                 </div>
               </td>

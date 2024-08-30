@@ -168,6 +168,7 @@ export default function Source() {
   return (
     <div className={'flex flex-col gap-10'}>
       <Breadcrumbs
+        aria-label="Breadcrumbs"
         breadcrumbs={[
           { href: '/dashboard/rss', label: 'Rss' },
           {
@@ -188,7 +189,12 @@ export default function Source() {
           )}
         </div>
       )}
-      <Form className="space-y-4" method="post" encType="multipart/form-data">
+      <Form
+        className="space-y-4"
+        method="post"
+        encType="multipart/form-data"
+        role="rss_form"
+      >
         <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>
             <FormField
@@ -198,6 +204,7 @@ export default function Source() {
               value={sourceId}
               required
               hidden
+              aria-label="Id input"
             />
 
             <FormField
@@ -207,6 +214,7 @@ export default function Source() {
               value={name}
               required
               onChange={setName}
+              aria-label="Name input"
             />
 
             <FormField
@@ -216,6 +224,7 @@ export default function Source() {
               value={url}
               required
               onChange={setUrl}
+              aria-label="Source url input"
             />
 
             <FormField
@@ -226,6 +235,7 @@ export default function Source() {
               type={'number'}
               required
               onChange={setInterval}
+              aria-label="Import interval input"
             />
           </Card>
 
@@ -236,6 +246,7 @@ export default function Source() {
               label={'Should has title?'}
               checked={hasTitle}
               onChange={() => setHasTitle((prevState) => !prevState)}
+              aria-label="Has title checkbox"
             />
 
             <Checkbox
@@ -244,6 +255,7 @@ export default function Source() {
               label={'Should has content?'}
               checked={hasContent}
               onChange={() => setHasContent((prevState) => !prevState)}
+              aria-label="Has content checkbox"
             />
 
             <Checkbox
@@ -252,6 +264,7 @@ export default function Source() {
               label={'Should has author name?'}
               checked={hasAuthor}
               onChange={() => setHasAuthor((prevState) => !prevState)}
+              aria-label="Has author checkbox"
             />
 
             <Checkbox
@@ -260,6 +273,7 @@ export default function Source() {
               label={'Should has publication date?'}
               checked={hasPubDate}
               onChange={() => setHasPubDate((prevState) => !prevState)}
+              aria-label="Has publication date checkbox"
             />
 
             <Checkbox
@@ -268,6 +282,7 @@ export default function Source() {
               label={'Pause mode'}
               checked={pause}
               onChange={() => setPause((prevState) => !prevState)}
+              aria-label="Pause mode checkbox"
             />
           </Card>
         </div>
@@ -277,8 +292,13 @@ export default function Source() {
             onClick={() => handleDelete(sourceId)}
             tone={'critical'}
             disabled={!source} //!isAdmin
+            aria-label="Delete source"
           />
-          <Button type={'submit'} label={'Save'} />
+          <Button
+            type={'submit'}
+            label={'Save'}
+            aria-label="Save source changes"
+          />
         </div>
       </Form>
     </div>

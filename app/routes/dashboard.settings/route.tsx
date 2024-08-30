@@ -84,6 +84,7 @@ export default function Settings() {
   return (
     <div className={'flex flex-col gap-10'}>
       <Breadcrumbs
+        aria-label="Breadcrumbs"
         breadcrumbs={[
           { href: '/dashboard/ads', label: 'Advertisements' },
           {
@@ -92,7 +93,12 @@ export default function Settings() {
           },
         ]}
       />
-      <Form className="space-y-4" method="post" encType="multipart/form-data">
+      <Form
+        className="space-y-4"
+        method="post"
+        encType="multipart/form-data"
+        role="advertisement_settings_form"
+      >
         <div className={'flex gap-10'}>
           <Card width={'w-3/4'} gap>
             <FormField
@@ -102,11 +108,16 @@ export default function Settings() {
               value={amount}
               type={'number'}
               onChange={setAmount}
+              aria-label="Amount per page input"
             />
           </Card>
         </div>
         <div className={'flex justify-between'}>
-          <Button type={'submit'} label={`Save`} />
+          <Button
+            type={'submit'}
+            label={`Save`}
+            aria-label="Save settings changes"
+          />
         </div>
       </Form>
     </div>

@@ -237,8 +237,14 @@ export default function Ad() {
             label: `${advertisement ? advertisement.title : 'create'}`,
           },
         ]}
+        aria-label="Breadcrumbs"
       />
-      <Form className="space-y-4" method="post" encType="multipart/form-data">
+      <Form
+        className="space-y-4"
+        method="post"
+        encType="multipart/form-data"
+        role="advertisement_form"
+      >
         <div className={'flex gap-10 flex-wrap lg:flex-nowrap'}>
           <Card width={'w-3/4'} gap>
             <FormField
@@ -248,6 +254,7 @@ export default function Ad() {
               value={adId}
               required
               hidden
+              aria-label="Id input"
             />
 
             <FormField
@@ -257,6 +264,7 @@ export default function Ad() {
               value={mediaId}
               // required
               hidden
+              aria-label="Image id input"
             />
 
             <FormField
@@ -266,6 +274,7 @@ export default function Ad() {
               value={title}
               required
               onChange={setTitle}
+              aria-label="Title input"
             />
             <FormField
               name="content"
@@ -274,6 +283,7 @@ export default function Ad() {
               value={content}
               required
               onChange={setContent}
+              aria-label="Content input"
             />
 
             <FormField
@@ -283,6 +293,7 @@ export default function Ad() {
               value={link}
               required
               onChange={setLink}
+              aria-label="Link input"
             />
 
             <DropZone
@@ -291,6 +302,7 @@ export default function Ad() {
               htmlFor={'image'}
               media={media}
               onChange={setMediaId}
+              aria-label="Drop zone"
             />
 
             <Select
@@ -310,6 +322,7 @@ export default function Ad() {
                 onPrevious: () =>
                   submit({ page: newsPaginationInfo.page - 1, query }),
               }}
+              aria-label="Select news"
             />
           </Card>
 
@@ -320,6 +333,7 @@ export default function Ad() {
               label={'Publish'}
               checked={isPublish}
               onChange={() => setIsPublish((prevState) => !prevState)}
+              aria-label="Is publish checkbox"
             />
             <Checkbox
               name={'is_list_page'}
@@ -327,6 +341,7 @@ export default function Ad() {
               label={'Should be on list page?'}
               checked={isOnListPage}
               onChange={() => setIsOnListPage((prevState) => !prevState)}
+              aria-label="Is list page checkbox"
             />
             <Checkbox
               name={'is_search_page'}
@@ -334,6 +349,7 @@ export default function Ad() {
               label={'Should be on search page?'}
               checked={isOnSearchPage}
               onChange={() => setIsOnSearchPage((prevState) => !prevState)}
+              aria-label="Is search page checkbox"
             />
 
             {isOnListPage && (
@@ -344,6 +360,7 @@ export default function Ad() {
                   label={'Should be on main page?'}
                   checked={isOnMainPage}
                   onChange={() => setIsOnMainPage((prevState) => !prevState)}
+                  aria-label="Is main page checkbox"
                 />
                 <Checkbox
                   name={'is_filter_page'}
@@ -351,6 +368,7 @@ export default function Ad() {
                   label={'Should be on filter page?'}
                   checked={isOnFilterPage}
                   onChange={() => setIsOnFilterPage((prevState) => !prevState)}
+                  aria-label="Is filter page checkbox"
                 />
                 <FormField
                   name="priority"
@@ -359,6 +377,7 @@ export default function Ad() {
                   value={priority}
                   type={'number'}
                   onChange={setPriority}
+                  aria-label="Priority input"
                 />
               </>
             )}
@@ -370,6 +389,7 @@ export default function Ad() {
                 label="Regular expression for display in search page"
                 value={regExp}
                 onChange={setRegExp}
+                aria-label="Regular expression input"
               />
             )}
           </Card>
@@ -380,10 +400,12 @@ export default function Ad() {
             onClick={() => handleDelete(adId)}
             tone={'success'}
             disabled={!advertisement} //!isAdmin
+            aria-label="Delete advertisement"
           />
           <Button
             type={'submit'}
             label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
+            aria-label="Save advertisement changes"
           />
         </div>
       </Form>

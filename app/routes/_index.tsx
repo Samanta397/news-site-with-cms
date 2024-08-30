@@ -134,6 +134,7 @@ export default function Index() {
           <NewsList
             list={news as Jsonify<PrismaNewWithEntities>[]}
             ads={ads as Jsonify<PrismaAdvertisementWithEntities>[]}
+            aria-label="News list"
           />
 
           <Pagination
@@ -142,6 +143,7 @@ export default function Index() {
             hasNext={paginationInfo.hasNextPage}
             hasPrev={paginationInfo.hasPreviousPage}
             url={'/'}
+            aria-label="News list pagination"
           />
         </>
       )}

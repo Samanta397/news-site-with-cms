@@ -53,11 +53,17 @@ export default function Ads() {
         <Button
           label={'Display settings'}
           onClick={() => navigate('/dashboard/settings')}
+          aria-label="Go to advertisement general settings"
         />
-        <Button label={'Create'} onClick={() => navigate('create')} />
+        <Button
+          label={'Create'}
+          onClick={() => navigate('create')}
+          aria-label="Create a new advertisement"
+        />
       </div>
 
       <Table
+        aria-label="Advertisement table"
         headings={headings}
         rows={advertisements}
         onClick={(to: string) => navigate(to)}

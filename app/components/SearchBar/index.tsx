@@ -23,7 +23,7 @@ export function SearchBar({
   }, [query]);
 
   return (
-    <Form method="post">
+    <Form method="post" role={'search_form'}>
       <label
         htmlFor="default-search"
         className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
@@ -57,11 +57,13 @@ export function SearchBar({
           required
           onChange={(e) => onChange(e?.target?.value || '')}
           value={query}
+          aria-label={'Search input'}
         />
         <Button
           type="submit"
           label={'Search'}
           customStyles={'absolute end-2.5 bottom-2.5'}
+          aria-label={'Search'}
         />
       </div>
     </Form>

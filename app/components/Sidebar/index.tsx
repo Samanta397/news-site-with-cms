@@ -17,7 +17,6 @@ export function Sidebar() {
     { title: 'RSS', icon: <PuzzleIcon />, to: '/dashboard/rss' },
     { title: 'Ads', icon: <AdsIcon />, to: '/dashboard/ads' },
   ];
-  console.log('sidebarOpen', sidebarOpen);
 
   return (
     <>

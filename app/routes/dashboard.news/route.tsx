@@ -76,7 +76,11 @@ export default function News() {
   return (
     <div className="flex gap-6 flex-col ">
       <div className={'flex justify-end'}>
-        <Button label={'Create new'} onClick={() => navigate('create')} />
+        <Button
+          label={'Create new'}
+          onClick={() => navigate('create')}
+          aria-label="Create news"
+        />
       </div>
 
       <Table
@@ -93,6 +97,7 @@ export default function News() {
           onPrevious: () =>
             navigate(`/dashboard/news?page=${paginationInfo.page - 1}`),
         }}
+        aria-label="News table"
       />
     </div>
   );

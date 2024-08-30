@@ -27,6 +27,7 @@ export function Pagination({
           isActive={i === currentPage}
           label={i.toString()}
           to={`${url}?page=${i}`}
+          aria-label={`Page number ${i}`}
         />,
       );
     }
@@ -42,6 +43,7 @@ export function Pagination({
           isPrevious={true}
           disabled={!hasPrev}
           to={`${url}?page=${currentPage - 1}`}
+          aria-label="Previous page"
         />
         {pages}
         <PaginationButton
@@ -49,6 +51,7 @@ export function Pagination({
           isNext={true}
           disabled={!hasNext}
           to={`${url}?page=${currentPage + 1}`}
+          aria-label="Next page"
         />
       </ul>
     </nav>

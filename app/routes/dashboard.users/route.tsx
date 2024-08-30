@@ -56,6 +56,7 @@ export default function Users() {
           onPrevious: () =>
             navigate(`/dashboard/users?page=${paginationInfo.page - 1}`),
         }}
+        aria-label="Users table"
       />
     </>
   );

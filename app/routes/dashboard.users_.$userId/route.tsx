@@ -118,6 +118,7 @@ export default function User() {
   return (
     <div className="mt-6 sm:mx-left min-w-80 sm:w-full sm:max-w-sm">
       <Breadcrumbs
+        aria-label="Breadcrumbs"
         breadcrumbs={[
           { href: '/dashboard/users', label: 'Users' },
           {
@@ -126,7 +127,7 @@ export default function User() {
           },
         ]}
       />
-      <Form className="space-y-4" method="post">
+      <Form className="space-y-4" method="post" role={'user_data_form'}>
         <FormField
           name="id"
           htmlFor="id"
@@ -134,6 +135,7 @@ export default function User() {
           value={userId}
           required
           hidden
+          aria-label="Id input"
         />
 
         <FormField
@@ -143,6 +145,7 @@ export default function User() {
           value={firstName}
           required
           onChange={setFirstName}
+          aria-label="First name input"
         />
         <FormField
           name="last_name"
@@ -151,6 +154,7 @@ export default function User() {
           value={lastName}
           required
           onChange={setLastName}
+          aria-label="Last name input"
         />
         <FormField
           name="email"
@@ -160,6 +164,7 @@ export default function User() {
           value={email}
           required
           onChange={setEmail}
+          aria-label="Email input"
         />
 
         <FormField
@@ -170,6 +175,7 @@ export default function User() {
           value={password}
           required
           onChange={setPassword}
+          aria-label="Password input"
         />
 
         <Select
@@ -178,6 +184,7 @@ export default function User() {
           options={roles}
           value={roles.find((item) => role === item.value) || roles[1]}
           onSelect={handleSelectRole}
+          aria-label="Role selector"
         />
 
         <div className={'flex justify-between'}>
@@ -186,8 +193,13 @@ export default function User() {
             onClick={() => handleDelete(userId)}
             tone={'critical'}
             // disabled={!isAdmin}
+            aria-label="Delete user"
           />
-          <Button type={'submit'} label={'Save'} />
+          <Button
+            type={'submit'}
+            label={'Save'}
+            aria-label="Save user changes"
+          />
         </div>
       </Form>
     </div>

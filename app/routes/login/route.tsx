@@ -41,7 +41,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (session.has('userId')) {
     // Redirect to the home page if they are already signed in.
-    return redirect('/dashboard');
+    return redirect('/dashboard/news');
   }
 
   const data = { error: session.get('error') };
@@ -79,7 +79,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     session.set('userId', loginData.id.toString());
   }
 
-  return redirect('/dashboard', {
+  return redirect('/dashboard/news', {
     headers: {
       'Set-Cookie': await commitSession(session),
     },
@@ -120,7 +120,7 @@ export default function Login() {
         )}
 
         <div className="mt-6 min-w-80 sm:mx-auto sm:w-full sm:max-w-sm">
-          <Form className="space-y-4" method="post">
+          <Form className="space-y-4" method="post" role={'login_form'}>
             <FormField
               name="email"
               htmlFor="email"
@@ -129,6 +129,7 @@ export default function Login() {
               value={email}
               required
               onChange={setEmail}
+              aria-label="Email input"
             />
 
             <FormField
@@ -139,6 +140,7 @@ export default function Login() {
               value={password}
               required
               onChange={setPassword}
+              aria-label="Password input"
             />
 
             <Button
@@ -146,6 +148,7 @@ export default function Login() {
               label={'Sign in'}
               onClick={() => console.log('Sing in')}
               fullWidth
+              aria-label="Login"
             />
           </Form>
 
@@ -155,6 +158,9 @@ export default function Login() {
               to={state === 'login' ? '/register' : '/login'}
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 ml-1"
               onClick={() => setState(state == 'login' ? 'register' : 'login')}
+              aria-label={
+                state === 'login' ? 'Go to register account' : 'Go to login'
+              }
             >
               {state === 'login' ? 'Sign up' : 'Sign in'}
             </Link>

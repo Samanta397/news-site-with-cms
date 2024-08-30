@@ -58,7 +58,11 @@ export default function Rss() {
   return (
     <div className="flex gap-6 flex-col ">
       <div className={'flex justify-end'}>
-        <Button label={'Create source'} onClick={() => navigate('create')} />
+        <Button
+          label={'Create source'}
+          onClick={() => navigate('create')}
+          aria-label="Create a new rss"
+        />
       </div>
 
       <Table
@@ -78,6 +82,7 @@ export default function Rss() {
           onPrevious: () =>
             navigate(`/dashboard/rss?page=${paginationInfo.page - 1}`),
         }}
+        aria-label="RSS table"
       />
     </div>
   );

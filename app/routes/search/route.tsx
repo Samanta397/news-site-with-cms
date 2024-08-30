@@ -78,7 +78,10 @@ export default function SearchPage() {
     <SiteLayout>
       {news.length > 0 && (
         <>
-          <NewsList list={news as Jsonify<PrismaNewWithEntities>[]} />
+          <NewsList
+            list={news as Jsonify<PrismaNewWithEntities>[]}
+            aria-label="News list"
+          />
 
           <Pagination
             currentPage={paginationInfo.page}
@@ -86,6 +89,7 @@ export default function SearchPage() {
             hasNext={paginationInfo.hasNextPage}
             hasPrev={paginationInfo.hasPreviousPage}
             url={'/'}
+            aria-label="News list pagination"
           />
         </>
       )}
