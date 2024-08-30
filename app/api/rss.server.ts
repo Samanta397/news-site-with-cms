@@ -2,8 +2,21 @@ import { prisma } from './prisma.server';
 import { RssType } from '~/types/rss.types';
 export async function createNewsSource(data: Omit<RssType, 'id'>) {
   try {
+    const tags = data.tags?.map((item) => ({
+      tag: {
+        connect: {
+          id: Number(item),
+        },
+      },
+    }));
+
     const source = await prisma.newsSource.create({
-      data,
+      data: {
+        ...data,
+        tags: {
+          create: tags,
+        },
+      },
     });
 
     return source;
@@ -17,11 +30,39 @@ export async function updateNewsSource(
   data: Partial<Omit<RssType, 'id'>>,
 ) {
   try {
+    const tags = data.tags?.map((item) => ({
+      where: {
+        source_id_tag_id: {
+          source_id: id,
+          tag_id: Number(item),
+        },
+      },
+      update: {
+        tag: {
+          connect: {
+            id: Number(item),
+          },
+        },
+      },
+      create: {
+        tag: {
+          connect: {
+            id: Number(item),
+          },
+        },
+      },
+    }));
+
     const source = await prisma.newsSource.update({
       where: {
         id,
       },
-      data,
+      data: {
+        ...data,
+        tags: {
+          upsert: tags,
+        },
+      },
     });
 
     return source;
@@ -47,6 +88,13 @@ export async function getNewsSource(id: number) {
     const source = await prisma.newsSource.findUnique({
       where: {
         id,
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
 

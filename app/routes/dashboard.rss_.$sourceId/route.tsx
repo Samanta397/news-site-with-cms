@@ -19,7 +19,7 @@ import { Card } from '~/components/Card';
 import { FormField } from '~/components/FormField';
 import { Checkbox } from '~/components/Checkbox';
 import { Button } from '~/components/Button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   createNewsSource,
   deleteNewsSource,
@@ -29,11 +29,18 @@ import {
 import { formatDate } from '~/utils/formatDate';
 import { SourceFields, SourceFieldsErrors } from '~/utils/validation/schema';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
+import { Select, SelectItemType } from '~/components/Select';
+import { getTags } from '~/api/tags.server';
+import { prepareTags } from '~/utils/prepareTags';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
 
   const { sourceId } = params;
+  const url = new URL(request.url);
+  const searchQuery = url.searchParams.get('query') || '';
+  const page = Number(url.searchParams.get('page')) || 1;
+
   if (!sourceId) {
     return;
   }
@@ -43,15 +50,15 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  //TODO: add tags
+  const { tags, paginationInfo } = await getTags(page, searchQuery);
 
-  // const tags = await getTags();
-  //
   if (sourceId === 'create') {
     return json({
       sourceId,
       source: null,
       isAdmin,
+      tags: prepareTags(tags || []),
+      tagsPaginationInfo: paginationInfo,
     });
   } else {
     const source = await getNewsSource(Number(sourceId));
@@ -60,6 +67,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       sourceId,
       source,
       isAdmin,
+      tags: prepareTags(tags || []),
+      tagsPaginationInfo: paginationInfo,
     });
   }
 };
@@ -114,6 +123,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     is_active: !fields.is_active,
     import_interval: Number(fields.import_interval),
     // next_import_time: !fields.is_active
+    tags: fields.tags.split(','),
   };
 
   if (fields.id === 'create') {
@@ -134,7 +144,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Source() {
-  const { sourceId, isAdmin, source } = useLoaderData<typeof loader>();
+  const { sourceId, isAdmin, source, tags, tagsPaginationInfo } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
@@ -155,6 +166,12 @@ export default function Source() {
   );
   const [pause, setPause] = useState<boolean>(!source?.is_active || false);
 
+  const [selectedTags, setSelectedTags] = useState<
+    SelectItemType | SelectItemType[]
+  >([]);
+
+  const [query, setQuery] = useState('');
+
   const handleDelete = (id: string) => {
     submit(
       {
@@ -167,6 +184,17 @@ export default function Source() {
       },
     );
   };
+
+  useEffect(() => {
+    if (source?.tags.length) {
+      setSelectedTags(
+        source.tags.map((item) => ({
+          id: item.tag.id.toString(),
+          value: item.tag.tagName,
+        })),
+      );
+    }
+  }, [source]);
 
   return (
     <div className={'flex flex-col gap-10'}>
@@ -289,6 +317,27 @@ export default function Source() {
               checked={pause}
               onChange={() => setPause((prevState) => !prevState)}
               aria-label="Pause mode checkbox"
+            />
+
+            <Select
+              label={'Tags'}
+              name={'tags'}
+              options={tags}
+              value={selectedTags}
+              onSelect={setSelectedTags}
+              multiple={true}
+              query={query}
+              onSearch={setQuery}
+              searchable={true}
+              pagination={{
+                hasNext: tagsPaginationInfo.hasNextPage,
+                hasPrevious: tagsPaginationInfo.hasPreviousPage,
+                onNext: () =>
+                  submit({ page: tagsPaginationInfo.page + 1, query }),
+                onPrevious: () =>
+                  submit({ page: tagsPaginationInfo.page - 1, query }),
+              }}
+              aria-label="Tags selector"
             />
           </Card>
         </div>

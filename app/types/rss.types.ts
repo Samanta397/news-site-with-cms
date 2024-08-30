@@ -12,6 +12,7 @@ export type RssType = {
   import_interval: number;
   last_import_time?: Date;
   next_import_time?: Date;
+  tags?: string[];
 };
 
 export type PrismaSource =

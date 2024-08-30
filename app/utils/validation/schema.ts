@@ -44,8 +44,7 @@ export const SourceFields = z.object({
   has_pub_date: z.string().nullish(),
   is_active: z.string().nullish(),
   import_interval: z.string(),
-
-  // tags: z.array(z.string()),
+  tags: z.string(),
 });
 
 export const TagsFields = z.object({
