@@ -13,28 +13,26 @@ import { NewsList } from '~/components/NewsList';
 import { getObject } from '~/api/minio.server';
 import process from 'node:process';
 import { getSettings } from '~/api/settings.server';
-import { getAds } from '~/api/ads.server';
 import { PrismaNewWithEntities } from '~/types/new.types';
 import { Jsonify } from '@remix-run/server-runtime/dist/jsonify';
-import { PrismaAdvertisementWithEntities } from '~/types/ads.types';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getUserSession(request);
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
+  const tag = url.searchParams.get('tags') || '';
 
   const { news, paginationInfo } = await getNews({
     page,
     onlyPublished: true,
     inNotHidden: true,
-    includeAds: true,
+    tag,
   });
 
   const newsWithMedia = await Promise.all(
     news.map(async (item) => {
       let mediaFile = null;
-      let newsAdsWithMedia = [];
 
       if (item.media) {
         mediaFile = await getObject(
@@ -43,59 +41,58 @@ export async function loader({ request }: LoaderFunctionArgs) {
         );
       }
 
-      if (item.ads.length > 0) {
-        for (const ad of item.ads) {
-          if (ad.media) {
-            const adsMediaFile = await getObject(
-              process.env.MINIO_BUCKET_NAME || '',
-              ad.media?.file_name || '',
-            );
-            newsAdsWithMedia.push({ ...ad, mediaFile: adsMediaFile });
-          } else {
-            newsAdsWithMedia.push(ad);
-          }
-        }
-      }
+      // if (item.ads?.length > 0) {
+      //   for (const ad of item.ads) {
+      //     if (ad.media) {
+      //       const adsMediaFile = await getObject(
+      //         process.env.MINIO_BUCKET_NAME || '',
+      //         ad.media?.file_name || '',
+      //       );
+      //       newsAdsWithMedia.push({ ...ad, mediaFile: adsMediaFile });
+      //     } else {
+      //       newsAdsWithMedia.push(ad);
+      //     }
+      //   }
+      // }
 
       return {
         ...item,
         mediaFile,
-        ads: newsAdsWithMedia,
       };
     }),
   );
 
   const settings = await getSettings();
 
-  const { advertisements } = await getAds(
-    page,
-    settings?.amount_per_page || 0,
-    true,
-    true,
-  );
-
-  const adsWithMedia = await Promise.all(
-    advertisements.map(async (item) => {
-      if (!item.media) {
-        return item;
-      }
-      const media = await getObject(
-        process.env.MINIO_BUCKET_NAME || '',
-        item.media?.file_name || '',
-      );
-
-      return {
-        ...item,
-        mediaFile: media,
-      };
-    }),
-  );
+  // const { advertisements } = await getAds(
+  //   page,
+  //   settings?.amount_per_page || 0,
+  //   true,
+  //   true,
+  // );
+  //
+  // const adsWithMedia = await Promise.all(
+  //   advertisements.map(async (item) => {
+  //     if (!item.media) {
+  //       return item;
+  //     }
+  //     const media = await getObject(
+  //       process.env.MINIO_BUCKET_NAME || '',
+  //       item.media?.file_name || '',
+  //     );
+  //
+  //     return {
+  //       ...item,
+  //       mediaFile: media,
+  //     };
+  //   }),
+  // );
 
   return {
     news: newsWithMedia,
     paginationInfo,
-    adsPerPage: settings?.amount_per_page || 0,
-    ads: adsWithMedia,
+    // adsPerPage: settings?.amount_per_page || 0,
+    // ads: adsWithMedia,
   };
 }
 
@@ -129,16 +126,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-export default function Index() {
-  const { news, paginationInfo, adsPerPage, ads } =
-    useLoaderData<typeof loader>();
+export default function FilterPage() {
+  const { news, paginationInfo } = useLoaderData<typeof loader>();
   return (
     <SiteLayout>
       {news.length > 0 && (
         <>
           <NewsList
             list={news as Jsonify<PrismaNewWithEntities>[]}
-            ads={ads as Jsonify<PrismaAdvertisementWithEntities>[]}
+            // ads={ads as Jsonify<PrismaAdvertisementWithEntities>[]}
             aria-label="News list"
           />
 

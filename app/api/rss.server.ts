@@ -83,6 +83,20 @@ export async function deleteNewsSource(id: number) {
   }
 }
 
+export async function deleteNewsSources(ids: number[]) {
+  try {
+    await prisma.newsSource.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  } catch (error) {
+    console.log('UPDATE NEWS SOURCE ERROR', error);
+  }
+}
+
 export async function getNewsSource(id: number) {
   try {
     const source = await prisma.newsSource.findUnique({

@@ -16,7 +16,7 @@ export function NewsList({ list, ads }: NewsListType) {
       {list.map((item, idx) => (
         <React.Fragment key={`news-${idx}`}>
           <SingleNew item={item} />
-          {item.ads.length > 0 && (
+          {item.ads?.length > 0 && (
             <>
               <hr />
               {item.ads.map((ad: any, adIdx: number) => (

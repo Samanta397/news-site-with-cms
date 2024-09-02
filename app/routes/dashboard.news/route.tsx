@@ -24,7 +24,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
 
-  const { news, paginationInfo } = await getNews(page);
+  const { news, paginationInfo } = await getNews({ page });
 
   return json({ news: prepareNews(news || []), paginationInfo, isAdmin });
 };
@@ -50,22 +50,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries());
-
-  // if ('actionType' in fields && fields.actionType === 'delete') {
-  //   await deleteUser(Number(fields.id));
-  //
-  //   return redirect('/dashboard/users');
-  // } else {
-  //   const result = RegisterFields.safeParse(fields);
-  //   if (!result.success) {
-  //     return json({
-  //       fields,
-  //       errors: result.error.flatten(),
-  //     });
-  //   }
-  //
-  //   await updateUser(fields);
-  // }
 
   return null;
 };
@@ -101,8 +85,10 @@ export default function News() {
         pagination={{
           hasNext: paginationInfo.hasNextPage,
           hasPrevious: paginationInfo.hasPreviousPage,
-          onNext: () =>
-            navigate(`/dashboard/news?page=${paginationInfo.page + 1}`),
+          onNext: () => {
+            console.log(`/dashboard/news?page=${paginationInfo.page + 1}`);
+            navigate(`/dashboard/news?page=${paginationInfo.page + 1}`);
+          },
           onPrevious: () =>
             navigate(`/dashboard/news?page=${paginationInfo.page - 1}`),
         }}

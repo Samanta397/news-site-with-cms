@@ -58,11 +58,27 @@ export async function uploadImage(
   }
 }
 
+async function isObjectExists(bucketName: string, objectName: string) {
+  try {
+    await minioClient.statObject(bucketName, objectName);
+    return true;
+  } catch (error) {
+    console.log('OBJECT NOT EXISTS IN S3 BUCKET');
+    return false;
+  }
+}
+
 export async function getObject(bucketName: string, objectName: string) {
   try {
     if (!bucketName || !objectName) {
       return null;
     }
+
+    const objectExists = await isObjectExists(bucketName, objectName);
+    if (!objectExists) {
+      return null;
+    }
+
     const promise: Promise<string | undefined> = new Promise(
       (resolve, reject) => {
         let buffers: Buffer[] = [];

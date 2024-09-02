@@ -47,9 +47,9 @@ export function Select({
     onSelect(selected);
   }, [selected]);
 
-  useEffect(() => {
-    setSelected(value);
-  }, [value]);
+  // useEffect(() => {
+  //   setSelected(value);
+  // }, [value]);
 
   return (
     <div>

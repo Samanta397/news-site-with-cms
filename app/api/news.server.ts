@@ -158,12 +158,23 @@ export async function getNew(id: number) {
     console.log('GET NEW ERROR', error);
   }
 }
-export async function getNews(
-  page: number = 1,
+
+type NewsListType = {
+  page?: number;
+  onlyPublished?: boolean;
+  inNotHidden?: boolean;
+  query?: string;
+  tag?: string;
+  includeAds?: boolean;
+};
+export async function getNews({
+  page = 1,
   onlyPublished = false,
   inNotHidden = false,
   query = '',
-) {
+  tag = '',
+  includeAds = false,
+}: NewsListType) {
   try {
     const pageSize = 10;
     const offset = (page - 1) * pageSize;
@@ -192,6 +203,21 @@ export async function getNews(
               },
             }
           : {},
+
+        tag
+          ? {
+              tags: {
+                some: {
+                  tag: {
+                    tagName: {
+                      mode: 'insensitive',
+                      contains: tag,
+                    },
+                  },
+                },
+              },
+            }
+          : {},
       ],
     };
     const news = await prisma.news.findMany({
@@ -200,11 +226,18 @@ export async function getNews(
       skip: offset,
       include: {
         media: true,
-        ads: {
+        tags: {
           include: {
-            media: true,
+            tag: true,
           },
         },
+        ads: includeAds
+          ? {
+              include: {
+                media: true,
+              },
+            }
+          : false,
       },
     });
 

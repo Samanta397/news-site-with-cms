@@ -113,10 +113,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if ('actionType' in fields && fields.actionType === 'delete') {
     await softDeleteNew(Number(fields.id));
+    return null;
   }
 
   if ('actionType' in fields && fields.actionType === 'restore') {
     await restoreNew(Number(fields.id));
+    return null;
   }
 
   if (!result.success) {
