@@ -1,5 +1,5 @@
 import { Form, json, Link, redirect, useActionData } from '@remix-run/react';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import { Layout } from '~/components/Layout';
 import { Card } from '~/components/Card';
 import { FormField } from '~/components/FormField';
@@ -13,7 +13,8 @@ import {
 } from '~/utils/validation/schema';
 import { Alert, AlertStatus } from '~/components/Alert';
 import { getUserSession, register } from '~/api/auth.server';
-import { commitSession, getSession } from '~/session';
+import { commitSession } from '~/session';
+import { RegisterActionKind, registerReducer } from '~/utils/reducers/register';
 
 export const meta: MetaFunction = () => {
   return [
@@ -73,30 +74,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Register() {
   const actionData = useActionData<typeof action>() as ActionData;
 
-  const [state, setState] = useState('register');
-
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<string>(Role.USER);
-
   const roles = [
     { id: 'Admin', value: Role.ADMIN },
     { id: 'User', value: Role.USER },
   ];
 
+  const [registerState, dispatch] = useReducer(registerReducer, {
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    role: Role.USER,
+  });
+
+  const [state, setState] = useState('register');
+
   const handleSelectRole = (value: SelectItemType | SelectItemType[]) => {
     if (!Array.isArray(value)) {
-      setRole(() => {
-        return (
-          roles.find((item) => value.value === item.value)?.value || Role.USER
-        );
+      dispatch({
+        type: RegisterActionKind.ROLE,
+        payload:
+          roles.find((item) => value.value === item.value)?.value || Role.USER,
       });
     } else {
-      setRole(() => {
-        return Role.USER;
-      });
+      dispatch({ type: RegisterActionKind.ROLE, payload: Role.USER });
     }
   };
 
@@ -129,9 +130,11 @@ export default function Register() {
               name="first_name"
               htmlFor="firstName"
               label="First name"
-              value={firstName}
+              value={registerState.first_name}
               required
-              onChange={setFirstName}
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.FIRST_NAME, payload: e })
+              }
               aria-label="First name input"
               errorMessage={actionData?.errors?.fieldErrors?.first_name}
             />
@@ -139,9 +142,11 @@ export default function Register() {
               name="last_name"
               htmlFor="lastName"
               label="Last name"
-              value={lastName}
+              value={registerState.last_name}
               required
-              onChange={setLastName}
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.LAST_NAME, payload: e })
+              }
               aria-label="Last name input"
               errorMessage={actionData?.errors?.fieldErrors?.last_name}
             />
@@ -150,9 +155,11 @@ export default function Register() {
               htmlFor="email"
               type="email"
               label="Email"
-              value={email}
+              value={registerState.email}
               required
-              onChange={setEmail}
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.EMAIL, payload: e })
+              }
               aria-label="Email input"
               errorMessage={actionData?.errors?.fieldErrors?.email}
             />
@@ -162,9 +169,11 @@ export default function Register() {
               htmlFor="password"
               type="password"
               label="Password"
-              value={password}
+              value={registerState.password}
               required
-              onChange={setPassword}
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.PASSWORD, payload: e })
+              }
               aria-label="Password input"
               errorMessage={actionData?.errors?.fieldErrors?.password}
             />
@@ -173,7 +182,10 @@ export default function Register() {
               label={'Role'}
               name={'role'}
               options={roles}
-              value={roles.find((item) => role === item.value) || roles[1]}
+              value={
+                roles.find((item) => registerState.role === item.value) ||
+                roles[1]
+              }
               onSelect={handleSelectRole}
               aria-label="Role selector"
             />

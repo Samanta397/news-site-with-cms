@@ -20,7 +20,7 @@ export function Sidebar() {
 
   return (
     <>
-      <nav className="fixed top-0  w-full bg-white border-b-2 border-gray-200 ">
+      <nav className="fixed top-0  w-full bg-white border-b-2 border-gray-200 z-20">
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center justify-start rtl:justify-end">

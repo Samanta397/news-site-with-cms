@@ -8,13 +8,14 @@ import { Form, redirect, useLoaderData, useSubmit } from '@remix-run/react';
 import { FormField } from '~/components/FormField';
 import { Button } from '~/components/Button';
 import { Select, SelectItemType } from '~/components/Select';
-import { useState } from 'react';
+import { useReducer } from 'react';
 import { RegisterForm, Role } from '~/types/user.types';
 import { createUser, deleteUser, getUser, updateUser } from '~/api/user.server';
 import { getUserSession } from '~/api/auth.server';
 import { RegisterFields } from '~/utils/validation/schema';
 import { capitalize } from '~/utils/capitalize';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
+import { RegisterActionKind, registerReducer } from '~/utils/reducers/register';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
@@ -100,27 +101,24 @@ export default function User() {
   const { userId, user, isAdmin } = useLoaderData<typeof loader>();
   const submit = useSubmit();
 
-  const [firstName, setFirstName] = useState(user?.first_name || '');
-  const [lastName, setLastName] = useState(user?.last_name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<string>(user?.role || Role.USER);
+  const [userState, dispatch] = useReducer(registerReducer, {
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || '',
+    email: user?.email || '',
+    password: '',
+    role: capitalize(user?.role) || Role.USER,
+  });
 
   const roles = [
     { id: 'Admin', value: Role.ADMIN },
     { id: 'User', value: Role.USER },
   ];
-
   const handleSelectRole = (value: SelectItemType | SelectItemType[]) => {
     if (!Array.isArray(value)) {
-      setRole(() => {
-        return (
-          roles.find((item) => value.value === item.value)?.value || Role.USER
-        );
-      });
-    } else {
-      setRole(() => {
-        return Role.USER;
+      dispatch({
+        type: RegisterActionKind.ROLE,
+        payload:
+          roles.find((item) => value.value === item.value)?.value || Role.USER,
       });
     }
   };
@@ -165,18 +163,22 @@ export default function User() {
           name="first_name"
           htmlFor="firstName"
           label="First name"
-          value={firstName}
+          value={userState.first_name}
           required
-          onChange={setFirstName}
+          onChange={(e) =>
+            dispatch({ type: RegisterActionKind.FIRST_NAME, payload: e })
+          }
           aria-label="First name input"
         />
         <FormField
           name="last_name"
           htmlFor="lastName"
           label="Last name"
-          value={lastName}
+          value={userState.last_name}
           required
-          onChange={setLastName}
+          onChange={(e) =>
+            dispatch({ type: RegisterActionKind.LAST_NAME, payload: e })
+          }
           aria-label="Last name input"
         />
         <FormField
@@ -184,9 +186,11 @@ export default function User() {
           htmlFor="email"
           type="email"
           label="Email"
-          value={email}
+          value={userState.email}
           required
-          onChange={setEmail}
+          onChange={(e) =>
+            dispatch({ type: RegisterActionKind.EMAIL, payload: e })
+          }
           aria-label="Email input"
         />
 
@@ -195,9 +199,11 @@ export default function User() {
           htmlFor="password"
           type="password"
           label="Password"
-          value={password}
+          value={userState.password}
           required
-          onChange={setPassword}
+          onChange={(e) =>
+            dispatch({ type: RegisterActionKind.PASSWORD, payload: e })
+          }
           aria-label="Password input"
         />
 
@@ -205,7 +211,7 @@ export default function User() {
           label={'Role'}
           name={'role'}
           options={roles}
-          value={roles.find((item) => role === item.value) || roles[1]}
+          value={roles.find((item) => userState.role === item.id) || roles[1]}
           onSelect={handleSelectRole}
           aria-label="Role selector"
         />

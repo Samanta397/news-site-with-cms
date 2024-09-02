@@ -19,7 +19,7 @@ import { Card } from '~/components/Card';
 import { FormField } from '~/components/FormField';
 import { Checkbox } from '~/components/Checkbox';
 import { Button } from '~/components/Button';
-import { useEffect, useState } from 'react';
+import { useReducer, useState } from 'react';
 import {
   createNewsSource,
   deleteNewsSource,
@@ -29,9 +29,10 @@ import {
 import { formatDate } from '~/utils/formatDate';
 import { SourceFields, SourceFieldsErrors } from '~/utils/validation/schema';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
-import { Select, SelectItemType } from '~/components/Select';
+import { Select } from '~/components/Select';
 import { getTags } from '~/api/tags.server';
 import { prepareTags } from '~/utils/prepareTags';
+import { RssActionKind, rssReducer } from '~/utils/reducers/rss';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
@@ -123,7 +124,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     is_active: !fields.is_active,
     import_interval: Number(fields.import_interval),
     // next_import_time: !fields.is_active
-    tags: fields.tags.split(','),
+    tags: fields.tags ? fields.tags.split(',') : [],
   };
 
   if (fields.id === 'create') {
@@ -149,26 +150,21 @@ export default function Source() {
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
-  const [url, setUrl] = useState<string>(source?.url || '');
-  const [name, setName] = useState<string>(source?.name || '');
-  const [hasTitle, setHasTitle] = useState<boolean>(source?.has_title || false);
-  const [hasContent, setHasContent] = useState<boolean>(
-    source?.has_content || false,
-  );
-  const [hasAuthor, setHasAuthor] = useState<boolean>(
-    source?.has_author || false,
-  );
-  const [hasPubDate, setHasPubDate] = useState<boolean>(
-    source?.has_pub_date || false,
-  );
-  const [interval, setInterval] = useState<number>(
-    source?.import_interval || 5,
-  );
-  const [pause, setPause] = useState<boolean>(!source?.is_active || false);
-
-  const [selectedTags, setSelectedTags] = useState<
-    SelectItemType | SelectItemType[]
-  >([]);
+  const [rssState, dispatch] = useReducer(rssReducer, {
+    url: source?.url || '',
+    name: source?.name || '',
+    has_title: source?.has_title || false,
+    has_content: source?.has_content || false,
+    has_author: source?.has_author || false,
+    has_pub_date: source?.has_pub_date || false,
+    is_active: !source?.is_active || false,
+    import_interval: source?.import_interval || 5,
+    tags:
+      source?.tags?.map((item) => ({
+        id: item.tag.id.toString(),
+        value: item.tag.tagName,
+      })) || [],
+  });
 
   const [query, setQuery] = useState('');
 
@@ -184,17 +180,6 @@ export default function Source() {
       },
     );
   };
-
-  useEffect(() => {
-    if (source?.tags.length) {
-      setSelectedTags(
-        source.tags.map((item) => ({
-          id: item.tag.id.toString(),
-          value: item.tag.tagName,
-        })),
-      );
-    }
-  }, [source]);
 
   return (
     <div className={'flex flex-col gap-10'}>
@@ -242,9 +227,11 @@ export default function Source() {
               name="name"
               htmlFor="name"
               label="Name"
-              value={name}
+              value={rssState.name}
               required
-              onChange={setName}
+              onChange={(e) => {
+                dispatch({ type: RssActionKind.NAME, payload: e });
+              }}
               aria-label="Name input"
               errorMessage={actionData?.errors?.fieldErrors?.name}
             />
@@ -253,9 +240,11 @@ export default function Source() {
               name="url"
               htmlFor="url"
               label="Source url"
-              value={url}
+              value={rssState.url}
               required
-              onChange={setUrl}
+              onChange={(e) => {
+                dispatch({ type: RssActionKind.URL, payload: e });
+              }}
               aria-label="Source url input"
               errorMessage={actionData?.errors?.fieldErrors?.url}
             />
@@ -264,10 +253,12 @@ export default function Source() {
               name="import_interval"
               htmlFor="import_interval"
               label="Import interval (in minutes)"
-              value={interval}
+              value={rssState.import_interval}
               type={'number'}
               required
-              onChange={setInterval}
+              onChange={(e) => {
+                dispatch({ type: RssActionKind.IMPORT_INTERVAL, payload: e });
+              }}
               aria-label="Import interval input"
               errorMessage={actionData?.errors?.fieldErrors?.import_interval}
             />
@@ -278,8 +269,13 @@ export default function Source() {
               name={'has_title'}
               htmlFor={'has_title'}
               label={'Should has title?'}
-              checked={hasTitle}
-              onChange={() => setHasTitle((prevState) => !prevState)}
+              checked={rssState.has_title}
+              onChange={() =>
+                dispatch({
+                  type: RssActionKind.HAS_TITLE,
+                  payload: !rssState.has_title,
+                })
+              }
               aria-label="Has title checkbox"
             />
 
@@ -287,8 +283,13 @@ export default function Source() {
               name={'has_content'}
               htmlFor={'has_content'}
               label={'Should has content?'}
-              checked={hasContent}
-              onChange={() => setHasContent((prevState) => !prevState)}
+              checked={rssState.has_content}
+              onChange={() =>
+                dispatch({
+                  type: RssActionKind.HAS_CONTENT,
+                  payload: !rssState.has_content,
+                })
+              }
               aria-label="Has content checkbox"
             />
 
@@ -296,8 +297,13 @@ export default function Source() {
               name={'has_author'}
               htmlFor={'has_author'}
               label={'Should has author name?'}
-              checked={hasAuthor}
-              onChange={() => setHasAuthor((prevState) => !prevState)}
+              checked={rssState.has_author}
+              onChange={() =>
+                dispatch({
+                  type: RssActionKind.HAS_AUTHOR,
+                  payload: !rssState.has_author,
+                })
+              }
               aria-label="Has author checkbox"
             />
 
@@ -305,8 +311,13 @@ export default function Source() {
               name={'has_pub_date'}
               htmlFor={'has_pub_date'}
               label={'Should has publication date?'}
-              checked={hasPubDate}
-              onChange={() => setHasPubDate((prevState) => !prevState)}
+              checked={rssState.has_pub_date}
+              onChange={() =>
+                dispatch({
+                  type: RssActionKind.HAS_PUB_DATE,
+                  payload: !rssState.has_pub_date,
+                })
+              }
               aria-label="Has publication date checkbox"
             />
 
@@ -314,8 +325,13 @@ export default function Source() {
               name={'is_active'}
               htmlFor={'is_active'}
               label={'Pause mode'}
-              checked={pause}
-              onChange={() => setPause((prevState) => !prevState)}
+              checked={rssState.is_active}
+              onChange={() =>
+                dispatch({
+                  type: RssActionKind.IS_ACTIVE,
+                  payload: !rssState.is_active,
+                })
+              }
               aria-label="Pause mode checkbox"
             />
 
@@ -323,8 +339,10 @@ export default function Source() {
               label={'Tags'}
               name={'tags'}
               options={tags}
-              value={selectedTags}
-              onSelect={setSelectedTags}
+              value={rssState.tags}
+              onSelect={(e) =>
+                dispatch({ type: RssActionKind.TAGS, payload: e })
+              }
               multiple={true}
               query={query}
               onSearch={setQuery}

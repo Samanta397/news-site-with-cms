@@ -1,8 +1,8 @@
 import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
 import { FormField } from '~/components/FormField';
-import { useEffect, useState } from 'react';
-import { Select, SelectItemType } from '~/components/Select';
+import { useEffect, useReducer, useState } from 'react';
+import { Select } from '~/components/Select';
 import {
   Form,
   json,
@@ -30,6 +30,10 @@ import { saveMedia } from '~/api/media.server';
 import { createAd, deleteAd, getAd, updateAd } from '~/api/ads.server';
 import { prepareSelectItems } from '~/utils/prepareSelectItems';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
+import {
+  AdvertisementActionKind,
+  advertisementReducer,
+} from '~/utils/reducers/advertisement';
 
 type ActionData = {
   fields: AdsFields;
@@ -140,7 +144,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     is_search_page: !!fields.is_search_page,
     is_main_page: !!fields.is_main_page,
     is_filter_page: !!fields.is_filter_page,
-    priority: Number(fields.priority),
+    priority: Number(fields.priority) || 0,
     regExp: fields.regExp,
     media_id:
       Number(fields.image_id) > 0
@@ -174,42 +178,26 @@ export default function Ad() {
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
-  const [title, setTitle] = useState<string>(advertisement?.title || '');
-  const [content, setContent] = useState<string>(advertisement?.content || '');
-  const [link, setLink] = useState<string>(advertisement?.link || '');
-  const [regExp, setRegExp] = useState<string>(advertisement?.regExp || '');
-  const [isPublish, setIsPublish] = useState<boolean>(!advertisement?.pubDate);
-  const [isOnListPage, setIsOnListPage] = useState<boolean>(
-    advertisement?.is_list_page || false,
-  );
-  const [isOnSearchPage, setIsOnSearchPage] = useState<boolean>(
-    advertisement?.is_search_page || false,
-  );
-  const [isOnMainPage, setIsOnMainPage] = useState<boolean>(
-    advertisement?.is_main_page || false,
-  );
-  const [isOnFilterPage, setIsOnFilterPage] = useState<boolean>(
-    advertisement?.is_filter_page || false,
-  );
-  const [priority, setPriority] = useState<number>(
-    advertisement?.priority || 0,
-  );
-  const [selectedNews, setSelectedNews] = useState<
-    SelectItemType | SelectItemType[]
-  >([]);
-  const [mediaId, setMediaId] = useState<string>(
-    advertisement?.media?.id.toString() || '0',
-  );
-  const [query, setQuery] = useState('');
+  const [advertisementState, dispatch] = useReducer(advertisementReducer, {
+    title: advertisement?.title || '',
+    content: advertisement?.content || '',
+    link: advertisement?.link || '',
+    is_publish: !advertisement?.pubDate,
+    is_list_page: advertisement?.is_list_page || false,
+    is_search_page: advertisement?.is_search_page || false,
+    is_main_page: advertisement?.is_main_page || false,
+    is_filter_page: advertisement?.is_filter_page || false,
+    priority: advertisement?.priority || '0',
+    regExp: advertisement?.regExp || '',
+    new:
+      {
+        id: advertisement?.new?.id.toString(),
+        value: advertisement?.new?.title,
+      } || null,
+    image_id: advertisement?.media?.id.toString() || '0',
+  });
 
-  useEffect(() => {
-    if (advertisement && advertisement.new_id && advertisement.new) {
-      setSelectedNews({
-        id: advertisement.new.id.toString(),
-        value: advertisement.new.title,
-      });
-    }
-  }, [advertisement]);
+  const [query, setQuery] = useState('');
 
   const handleDelete = (id: string) => {
     submit(
@@ -258,7 +246,7 @@ export default function Ad() {
               name="image_id"
               htmlFor="image_id"
               label="image_id"
-              value={mediaId}
+              value={advertisementState.image_id}
               // required
               hidden
               aria-label="Image id input"
@@ -268,9 +256,11 @@ export default function Ad() {
               name="title"
               htmlFor="title"
               label="Title"
-              value={title}
+              value={advertisementState.title}
               required
-              onChange={setTitle}
+              onChange={(e) =>
+                dispatch({ type: AdvertisementActionKind.TITLE, payload: e })
+              }
               aria-label="Title input"
               errorMessage={actionData?.errors?.fieldErrors?.title}
             />
@@ -278,9 +268,11 @@ export default function Ad() {
               name="content"
               htmlFor="content"
               label="Content"
-              value={content}
+              value={advertisementState.content}
               required
-              onChange={setContent}
+              onChange={(e) =>
+                dispatch({ type: AdvertisementActionKind.CONTENT, payload: e })
+              }
               aria-label="Content input"
               errorMessage={actionData?.errors?.fieldErrors?.content}
             />
@@ -289,9 +281,11 @@ export default function Ad() {
               name="link"
               htmlFor="link"
               label="link"
-              value={link}
+              value={advertisementState.link}
               required
-              onChange={setLink}
+              onChange={(e) =>
+                dispatch({ type: AdvertisementActionKind.LINK, payload: e })
+              }
               aria-label="Link input"
               errorMessage={actionData?.errors?.fieldErrors?.link}
             />
@@ -301,7 +295,9 @@ export default function Ad() {
               label={'Image'}
               htmlFor={'image'}
               media={media}
-              onChange={setMediaId}
+              onChange={(e) =>
+                dispatch({ type: AdvertisementActionKind.MEDIA_ID, payload: e })
+              }
               aria-label="Drop zone"
             />
 
@@ -309,8 +305,13 @@ export default function Ad() {
               label={'Select new'}
               name={'new'}
               options={news}
-              value={selectedNews}
-              onSelect={setSelectedNews}
+              value={advertisementState.new}
+              onSelect={(e) =>
+                dispatch({
+                  type: AdvertisementActionKind.SELECTED_NEWS,
+                  payload: e,
+                })
+              }
               query={query}
               onSearch={setQuery}
               searchable={true}
@@ -331,64 +332,96 @@ export default function Ad() {
               name={'is_publish'}
               htmlFor={'is_publish'}
               label={'Publish'}
-              checked={isPublish}
-              onChange={() => setIsPublish((prevState) => !prevState)}
+              checked={advertisementState.is_publish}
+              onChange={() =>
+                dispatch({
+                  type: AdvertisementActionKind.IS_PUBLISH,
+                  payload: !advertisementState.is_publish,
+                })
+              }
               aria-label="Is publish checkbox"
             />
             <Checkbox
               name={'is_list_page'}
               htmlFor={'is_list_page'}
               label={'Should be on list page?'}
-              checked={isOnListPage}
-              onChange={() => setIsOnListPage((prevState) => !prevState)}
+              checked={advertisementState.is_list_page}
+              onChange={() =>
+                dispatch({
+                  type: AdvertisementActionKind.IS_ON_LIST_PAGE,
+                  payload: !advertisementState.is_list_page,
+                })
+              }
               aria-label="Is list page checkbox"
             />
             <Checkbox
               name={'is_search_page'}
               htmlFor={'is_search_page'}
               label={'Should be on search page?'}
-              checked={isOnSearchPage}
-              onChange={() => setIsOnSearchPage((prevState) => !prevState)}
+              checked={advertisementState.is_search_page}
+              onChange={() =>
+                dispatch({
+                  type: AdvertisementActionKind.IS_ON_SEARCH_PAGE,
+                  payload: !advertisementState.is_search_page,
+                })
+              }
               aria-label="Is search page checkbox"
             />
 
-            {isOnListPage && (
+            {advertisementState.is_list_page && (
               <>
                 <Checkbox
                   name={'is_main_page'}
                   htmlFor={'is_main_page'}
                   label={'Should be on main page?'}
-                  checked={isOnMainPage}
-                  onChange={() => setIsOnMainPage((prevState) => !prevState)}
+                  checked={advertisementState.is_main_page}
+                  onChange={() =>
+                    dispatch({
+                      type: AdvertisementActionKind.IS_ON_MAIN_PAGE,
+                      payload: !advertisementState.is_main_page,
+                    })
+                  }
                   aria-label="Is main page checkbox"
                 />
                 <Checkbox
                   name={'is_filter_page'}
                   htmlFor={'is_filter_page'}
                   label={'Should be on filter page?'}
-                  checked={isOnFilterPage}
-                  onChange={() => setIsOnFilterPage((prevState) => !prevState)}
+                  checked={advertisementState.is_filter_page}
+                  onChange={() =>
+                    dispatch({
+                      type: AdvertisementActionKind.IS_ON_FILTER_PAGE,
+                      payload: !advertisementState.is_filter_page,
+                    })
+                  }
                   aria-label="Is filter page checkbox"
                 />
                 <FormField
                   name="priority"
                   htmlFor="priority"
                   label="Priority of displaying (in %)"
-                  value={priority}
+                  value={advertisementState.priority}
                   type={'number'}
-                  onChange={setPriority}
+                  onChange={(e) =>
+                    dispatch({
+                      type: AdvertisementActionKind.PRIORITY,
+                      payload: e,
+                    })
+                  }
                   aria-label="Priority input"
                 />
               </>
             )}
 
-            {isOnSearchPage && (
+            {advertisementState.is_search_page && (
               <FormField
                 name="regExp"
                 htmlFor="regExp"
                 label="Regular expression for display in search page"
-                value={regExp}
-                onChange={setRegExp}
+                value={advertisementState.regExp}
+                onChange={(e) =>
+                  dispatch({ type: AdvertisementActionKind.REGEXP, payload: e })
+                }
                 aria-label="Regular expression input"
                 errorMessage={actionData?.errors?.fieldErrors?.regExp}
               />
@@ -405,7 +438,7 @@ export default function Ad() {
           />
           <Button
             type={'submit'}
-            label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
+            label={`${advertisementState.is_publish ? 'Save and publish' : 'Save to draft'} `}
             aria-label="Save advertisement changes"
             disabled={!isAdmin}
           />

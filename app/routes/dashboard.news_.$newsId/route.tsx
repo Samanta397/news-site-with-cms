@@ -1,8 +1,8 @@
 import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
 import { FormField } from '~/components/FormField';
-import { useEffect, useState } from 'react';
-import { Select, SelectItemType } from '~/components/Select';
+import { useReducer, useState } from 'react';
+import { Select } from '~/components/Select';
 import {
   Form,
   json,
@@ -36,6 +36,7 @@ import { getObject, uploadImage } from '~/api/minio.server';
 import * as process from 'node:process';
 import { saveMedia } from '~/api/media.server';
 import { Breadcrumbs } from '~/components/Breadcrumbs';
+import { NewsActionKind, newsReducer } from '~/utils/reducers/news';
 
 type ActionData = {
   fields: NewsFields;
@@ -131,7 +132,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   );
 
   const createdImage = await saveMedia(imageName);
-
   const data = {
     id: fields.id,
     content: fields.content,
@@ -145,7 +145,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         : createdImage?.id
           ? createdImage?.id
           : null,
-    tags: fields.tags.split(','),
+    tags: fields.tags ? fields.tags.split(',') : [],
   };
 
   if (fields.id === 'create') {
@@ -172,19 +172,21 @@ export default function New() {
   const actionData = useActionData<typeof action>() as ActionData;
   const submit = useSubmit();
 
-  const [title, setTitle] = useState<string>(news?.title || '');
-  const [content, setContent] = useState<string>(news?.content || '');
-  const [author, setAuthor] = useState<string>(news?.author || '');
-  const [isPublish, setIsPublish] = useState<boolean>(!!news?.pubDate);
-  const [isHidden, setIsHidden] = useState<boolean>(news?.is_hidden || false);
-  const [selectedTags, setSelectedTags] = useState<
-    SelectItemType | SelectItemType[]
-  >([]);
-  const [query, setQuery] = useState('');
+  const [newsState, dispatch] = useReducer(newsReducer, {
+    title: news?.title || '',
+    content: news?.content || '',
+    author: news?.author || '',
+    is_publish: !!news?.pubDate,
+    is_hidden: news?.is_hidden || false,
+    image_id: news?.media?.id.toString() || '0',
+    tags:
+      news?.tags.map((item) => ({
+        id: item.tag.id.toString(),
+        value: item.tag.tagName,
+      })) || [],
+  });
 
-  const [mediaId, setMediaId] = useState<string>(
-    news?.media?.id.toString() || '0',
-  );
+  const [query, setQuery] = useState('');
 
   const handleDelete = (id: string) => {
     submit(
@@ -211,17 +213,6 @@ export default function New() {
       },
     );
   };
-
-  useEffect(() => {
-    if (news?.tags.length) {
-      setSelectedTags(
-        news.tags.map((item) => ({
-          id: item.tag.id.toString(),
-          value: item.tag.tagName,
-        })),
-      );
-    }
-  }, [news]);
 
   return (
     <div className={'flex flex-col gap-10'}>
@@ -257,7 +248,7 @@ export default function New() {
               name="image_id"
               htmlFor="image_id"
               label="image_id"
-              value={mediaId}
+              value={newsState.image_id}
               // required
               hidden
               aria-label="Image id input"
@@ -267,9 +258,11 @@ export default function New() {
               name="title"
               htmlFor="title"
               label="Title"
-              value={title}
+              value={newsState.title}
               required
-              onChange={setTitle}
+              onChange={(e) =>
+                dispatch({ type: NewsActionKind.TITLE, payload: e })
+              }
               aria-label="Title input"
               errorMessage={actionData?.errors?.fieldErrors?.title}
             />
@@ -277,8 +270,10 @@ export default function New() {
               name="content"
               htmlFor="content"
               label="Content"
-              value={content}
-              onChange={setContent}
+              value={newsState.content}
+              onChange={(e) =>
+                dispatch({ type: NewsActionKind.CONTENT, payload: e })
+              }
               aria-label="Content input"
               errorMessage={actionData?.errors?.fieldErrors?.content}
             />
@@ -288,7 +283,9 @@ export default function New() {
               label={'Image'}
               htmlFor={'image'}
               media={media}
-              onChange={setMediaId}
+              onChange={(e) =>
+                dispatch({ type: NewsActionKind.IMAGE_ID, payload: e })
+              }
               aria-label="Drop zone"
             />
           </Card>
@@ -298,8 +295,10 @@ export default function New() {
               name="author"
               htmlFor="author"
               label="Author"
-              value={author}
-              onChange={setAuthor}
+              value={newsState.author}
+              onChange={(e) =>
+                dispatch({ type: NewsActionKind.AUTHOR, payload: e })
+              }
               aria-label="Author input"
               errorMessage={actionData?.errors?.fieldErrors?.author}
             />
@@ -308,8 +307,10 @@ export default function New() {
               label={'Tags'}
               name={'tags'}
               options={tags}
-              value={selectedTags}
-              onSelect={setSelectedTags}
+              value={newsState.tags}
+              onSelect={(e) =>
+                dispatch({ type: NewsActionKind.TAGS, payload: e })
+              }
               multiple={true}
               query={query}
               onSearch={setQuery}
@@ -329,16 +330,26 @@ export default function New() {
               name={'is_publish'}
               htmlFor={'is_publish'}
               label={'Publish'}
-              checked={isPublish}
-              onChange={() => setIsPublish((prevState) => !prevState)}
+              checked={newsState.is_publish}
+              onChange={() =>
+                dispatch({
+                  type: NewsActionKind.IS_PUBLISH,
+                  payload: !newsState.is_publish,
+                })
+              }
               aria-label="Is publish checkbox"
             />
             <Checkbox
               name={'is_hidden'}
               htmlFor={'is_hidden'}
               label={'Hidden mode'}
-              checked={isHidden}
-              onChange={() => setIsHidden((prevState) => !prevState)}
+              checked={newsState.is_hidden}
+              onChange={() =>
+                dispatch({
+                  type: NewsActionKind.IS_HIDDEN,
+                  payload: !newsState.is_hidden,
+                })
+              }
               aria-label="Is hidden checkbox"
             />
           </Card>
@@ -357,7 +368,7 @@ export default function New() {
           />
           <Button
             type={'submit'}
-            label={`${isPublish ? 'Save and publish' : 'Save to draft'} `}
+            label={`${newsState.is_publish ? 'Save and publish' : 'Save to draft'} `}
             aria-label="Save news changes"
             disabled={!isAdmin}
           />

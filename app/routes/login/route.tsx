@@ -3,7 +3,7 @@ import { FormField } from '~/components/FormField';
 import { Card } from '~/components/Card';
 import { Form, json, Link, redirect, useActionData } from '@remix-run/react';
 import { Button } from '~/components/Button';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -12,7 +12,8 @@ import {
 import { LoginFields, LoginFieldsErrors } from '~/utils/validation/schema';
 import { Alert, AlertStatus } from '~/components/Alert';
 import { getUserSession, login } from '~/api/auth.server';
-import { commitSession, getSession } from '~/session';
+import { commitSession } from '~/session';
+import { LoginActionKind, loginReducer } from '~/utils/reducers/login';
 
 export const meta: MetaFunction = () => {
   return [
@@ -88,11 +89,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Login() {
   const actionData = useActionData<typeof action>() as ActionData;
+  const [loginState, dispatch] = useReducer(loginReducer, {
+    email: '',
+    password: '',
+  });
 
   const [state, setState] = useState('login');
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   return (
     <Layout>
@@ -124,9 +126,11 @@ export default function Login() {
               htmlFor="email"
               type="email"
               label="Email"
-              value={email}
+              value={loginState.email}
               required
-              onChange={setEmail}
+              onChange={(e) =>
+                dispatch({ type: LoginActionKind.EMAIL, payload: e })
+              }
               aria-label="Email input"
               errorMessage={actionData?.errors?.fieldErrors?.email}
             />
@@ -136,9 +140,11 @@ export default function Login() {
               htmlFor="password"
               type="password"
               label="Password"
-              value={password}
+              value={loginState.password}
               required
-              onChange={setPassword}
+              onChange={(e) =>
+                dispatch({ type: LoginActionKind.PASSWORD, payload: e })
+              }
               aria-label="Password input"
               errorMessage={actionData?.errors?.fieldErrors?.password}
             />
