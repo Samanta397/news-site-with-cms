@@ -1,6 +1,6 @@
 import { Button } from '~/components/Button';
 import { Table } from '~/components/Table';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal } from '~/components/Modal';
 import {
   Form,
@@ -37,7 +37,7 @@ type ActionData = {
   };
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
 
   const sessionUser = await getUser(Number(session.get('userId')));

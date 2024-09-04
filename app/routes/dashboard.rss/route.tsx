@@ -12,9 +12,8 @@ import { deleteNewsSources, getNewsSources } from '~/api/rss.server';
 import { prepareSources } from '~/utils/prepareSources';
 import { Button } from '~/components/Button';
 import { Table } from '~/components/Table';
-import React, { useState } from 'react';
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
 
   const sessionUser = await getUser(Number(session.get('userId')));

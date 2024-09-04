@@ -1,6 +1,5 @@
 import { emptyImage } from '~/assets';
 import { format } from 'date-fns/format';
-import React from 'react';
 import { PrismaAdvertisementWithEntities } from '~/types/ads.types';
 import { Jsonify } from '@remix-run/server-runtime/dist/jsonify';
 

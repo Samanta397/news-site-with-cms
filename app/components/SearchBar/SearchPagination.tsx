@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button } from '~/components/Button';
 import { ArrowLeftIcon } from '~/icons/ArrowLeftIcon';
 import { ArrowRightIcon } from '~/icons/ArrowRightIcon';

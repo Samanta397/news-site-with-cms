@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { ArrowLeftIcon } from '~/icons/ArrowLeftIcon';
 import { ArrowRightIcon } from '~/icons/ArrowRightIcon';
 import { PaginationButton } from '~/components/Pagination/PaginationButton';

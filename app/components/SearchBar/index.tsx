@@ -1,6 +1,6 @@
 import { Button } from '~/components/Button';
 import { Form, useSubmit } from '@remix-run/react';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 type SearchBarType = {
   query?: string;
@@ -14,7 +14,6 @@ export function SearchBar({
   autoComplete = false,
 }: SearchBarType) {
   const submit = useSubmit();
-  const ref = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (autoComplete) {

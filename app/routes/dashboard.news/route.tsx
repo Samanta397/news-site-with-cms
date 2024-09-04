@@ -14,7 +14,7 @@ import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
 import { Role } from '~/types/user.types';
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
   const sessionUser = await getUser(Number(session.get('userId')));
   const isAdmin = sessionUser
@@ -47,9 +47,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const fields = Object.fromEntries(formData.entries());
+export const action = async () => {
+  // const formData = await request.formData();
+  // const fields = Object.fromEntries(formData.entries());
 
   return null;
 };

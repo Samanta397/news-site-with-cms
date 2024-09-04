@@ -1,6 +1,11 @@
 import { prisma } from '~/api/prisma.server';
+import {
+  AdvertisementCreate,
+  AdvertisementUpdate,
+  PrismaAdvertisementWhereInput,
+} from '~/types/ads.types';
 
-export async function createAd(data: any) {
+export async function createAd(data: AdvertisementCreate) {
   try {
     const advertisement = await prisma.advertisement.create({
       data: {
@@ -14,7 +19,7 @@ export async function createAd(data: any) {
   }
 }
 
-export async function updateAd(id: number, data: any) {
+export async function updateAd(id: number, data: AdvertisementUpdate) {
   try {
     const advertisement = await prisma.advertisement.update({
       where: {
@@ -37,7 +42,7 @@ export async function updateAd(id: number, data: any) {
 
 export async function deleteAd(id: number) {
   try {
-    const advertisement = await prisma.advertisement.delete({
+    await prisma.advertisement.delete({
       where: {
         id,
       },
@@ -77,28 +82,30 @@ export async function getAds(
     // const pageSize = 10;
     const offset = (page - 1) * pageSize;
 
-    const advertisements = await prisma.advertisement.findMany({
-      where: {
-        AND: [
-          onlyPublished
-            ? {
-                pubDate: {
-                  not: null,
-                },
-                is_draft: false,
-              }
-            : {},
+    const whereQuery: PrismaAdvertisementWhereInput = {
+      AND: [
+        onlyPublished
+          ? {
+              pubDate: {
+                not: null,
+              },
+              is_draft: false,
+            }
+          : {},
 
-          query
-            ? {
-                title: {
-                  mode: 'insensitive',
-                  contains: query,
-                },
-              }
-            : {},
-        ],
-      },
+        query
+          ? {
+              title: {
+                mode: 'insensitive',
+                contains: query,
+              },
+            }
+          : {},
+      ],
+    };
+
+    const advertisements = await prisma.advertisement.findMany({
+      where: whereQuery,
       take: pageSize,
       skip: offset,
       include: {
@@ -111,26 +118,7 @@ export async function getAds(
     });
 
     const count = await prisma.advertisement.count({
-      where: {
-        AND: [
-          onlyPublished
-            ? {
-                pubDate: {
-                  not: null,
-                },
-              }
-            : {},
-
-          query
-            ? {
-                title: {
-                  mode: 'insensitive',
-                  contains: query,
-                },
-              }
-            : {},
-        ],
-      },
+      where: whereQuery,
     });
 
     if (!advertisements || !count) {

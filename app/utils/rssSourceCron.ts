@@ -35,7 +35,7 @@ export async function importRssSources() {
       const rssNews = await getRssNews(item.title, item.guid);
 
       if (!rssNews) {
-        const news = await createNew({
+        await createNew({
           title: item.title || source.name,
           content: source.has_content ? item.content : null,
           author: source.has_author ? item.author : null,

@@ -17,3 +17,5 @@ export type RssType = {
 
 export type PrismaSource =
   Prisma.NewsSourceGetPayload<Prisma.NewsSourceDefaultArgs>;
+
+export type SettingsCreate = Prisma.SettingsCreateInput;

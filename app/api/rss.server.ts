@@ -73,7 +73,7 @@ export async function updateNewsSource(
 
 export async function deleteNewsSource(id: number) {
   try {
-    const source = await prisma.newsSource.delete({
+    await prisma.newsSource.delete({
       where: {
         id,
       },

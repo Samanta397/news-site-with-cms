@@ -9,7 +9,7 @@ import { getUser } from '~/api/user.server';
 import { capitalize } from '~/utils/capitalize';
 import { Role } from '~/types/user.types';
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
   const sessionUser = await getUser(Number(session.get('userId')));
   const isAdmin = sessionUser

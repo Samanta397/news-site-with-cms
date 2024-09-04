@@ -47,7 +47,7 @@ type ActionData = {
   };
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await getUserSession(request);
 
   const sessionUser = await getUser(Number(session.get('userId')));
@@ -79,7 +79,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     amount_per_page: Number(fields.amount_per_page),
   };
 
-  const settings = await createOrUpdateSettings(data);
+  await createOrUpdateSettings(data);
   return redirect(`/dashboard/settings`);
 };
 

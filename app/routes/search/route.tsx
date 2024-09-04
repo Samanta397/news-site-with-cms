@@ -7,7 +7,6 @@ import {
 import { getUserSession } from '~/api/auth.server';
 import { NewsList } from '~/components/NewsList';
 import { Pagination } from '~/components/Pagination';
-import React from 'react';
 import { useLoaderData } from '@remix-run/react';
 import { getNews } from '~/api/news.server';
 import { getObject } from '~/api/minio.server';
@@ -19,8 +18,6 @@ import { getSettings } from '~/api/settings.server';
 import { PrismaAdvertisementWithEntities } from '~/types/ads.types';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getUserSession(request);
-
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
   const query = url.searchParams.get('query') || '';

@@ -1,7 +1,7 @@
 import { Card } from '~/components/Card';
 import { Button } from '~/components/Button';
 import { FormField } from '~/components/FormField';
-import { useEffect, useReducer, useState } from 'react';
+import { useReducer, useState } from 'react';
 import { Select } from '~/components/Select';
 import {
   Form,
@@ -61,12 +61,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ? capitalize(sessionUser.role) === Role.ADMIN
     : false;
 
-  const { news, paginationInfo } = await getNews(
+  const { news, paginationInfo } = await getNews({
     page,
-    false,
-    false,
-    searchQuery,
-  );
+    onlyPublished: false,
+    inNotHidden: false,
+    query: searchQuery,
+  });
 
   if (adId === 'create') {
     return json({

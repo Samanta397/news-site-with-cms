@@ -1,6 +1,7 @@
 import { prisma } from '~/api/prisma.server';
+import { SettingsCreate } from '~/types/rss.types';
 
-export async function createOrUpdateSettings(data: any) {
+export async function createOrUpdateSettings(data: SettingsCreate) {
   try {
     const existedSettings = await getSettings();
     let settings = null;

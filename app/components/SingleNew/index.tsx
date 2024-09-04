@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { format } from 'date-fns/format';
 import { emptyImage } from '~/assets';
 import { Jsonify } from '@remix-run/server-runtime/dist/jsonify';
@@ -41,8 +39,9 @@ export function SingleNew({ item }: SingleNewType) {
         </div>
 
         <div>
-          {item.tags.map((tag) => (
+          {item.tags.map((tag, idx) => (
             <Link
+              key={`new-tag_${idx}`}
               to={`/filter?tags=${tag.tag.tagName}`}
               className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 mr-2"
             >

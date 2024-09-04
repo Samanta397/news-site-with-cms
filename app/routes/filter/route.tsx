@@ -4,21 +4,16 @@ import {
   MetaFunction,
 } from '@remix-run/node';
 import { SiteLayout } from '~/components/SiteLayout';
-import { getUserSession } from '~/api/auth.server';
 import { redirect, useLoaderData } from '@remix-run/react';
 import { getNews } from '~/api/news.server';
-import React from 'react';
 import { Pagination } from '~/components/Pagination';
 import { NewsList } from '~/components/NewsList';
 import { getObject } from '~/api/minio.server';
 import process from 'node:process';
-import { getSettings } from '~/api/settings.server';
 import { PrismaNewWithEntities } from '~/types/new.types';
 import { Jsonify } from '@remix-run/server-runtime/dist/jsonify';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getUserSession(request);
-
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
   const tag = url.searchParams.get('tags') || '';
@@ -62,7 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }),
   );
 
-  const settings = await getSettings();
+  // const settings = await getSettings();
 
   // const { advertisements } = await getAds(
   //   page,
@@ -115,7 +110,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const session = await getUserSession(request);
   const formData = await request.formData();
   const fields = Object.fromEntries(formData.entries());
 
