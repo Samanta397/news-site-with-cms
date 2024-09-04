@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "news" ADD COLUMN     "pubDate" TIMESTAMP(3),
+ALTER COLUMN "content" DROP NOT NULL,
+ALTER COLUMN "author" DROP NOT NULL;

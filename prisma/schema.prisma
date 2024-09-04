@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            Int         @id @default(autoincrement())
+  email         String      @unique
+  first_name    String
+  last_name     String
+  password      String
+  role          Role        @default(USER)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("users")
+}
+
+model News {
+  id             Int         @id @default(autoincrement())
+  title          String
+  content        String?
+  author         String?
+  pubDate        DateTime?
+
+  is_graft       Boolean     @default(false)
+  is_hidden      Boolean     @default(false)
+  is_deleted     Boolean     @default(false)
+
+  link           String?
+  source_guid    String?
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  media          Media?      @relation(fields: [media_id], references: [id])
+  media_id       Int?        @unique
+  tags           TagsOnNews[]
+  ads            Advertisement[]
+
+  source         NewsSource? @relation(fields: [source_id], references: [id])
+  source_id      Int?        @unique
+
+  @@map("news")
+}
+
+model Tag {
+  id            Int           @id @default(autoincrement())
+  tagName       String        @unique
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  news          TagsOnNews[]
+  news_sources  TagsOnSourceNews[]
+
+  @@map("tags")
+}
+
+model TagsOnNews {
+  new           News    @relation(fields: [new_id], references: [id], onDelete: Cascade)
+  new_id        Int
+  tag           Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id        Int
+
+  @@id([new_id, tag_id])
+
+  @@map("tags_on_news")
+}
+
+model TagsOnSourceNews {
+  source           NewsSource    @relation(fields: [source_id], references: [id], onDelete: Cascade)
+  source_id        Int
+  tag              Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id           Int
+
+  @@id([source_id, tag_id])
+
+  @@map("tags_on_source_news")
+}
+
+model Media {
+  id             Int           @id @default(autoincrement())
+  file_name      String        @unique
+  altText        String?
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  news          News[]
+  ads           Advertisement[]
+
+  @@map("media")
+}
+
+model NewsSource {
+    id                    Int           @id @default(autoincrement())
+    url                   String     @unique
+    name                  String
+    has_title             Boolean   @default(true)
+    has_content           Boolean   @default(true)
+    has_author            Boolean   @default(true)
+    has_pub_date          Boolean   @default(true)
+    is_active             Boolean   @default(true)
+    import_interval       Int       @default(5)
+    next_import_time      DateTime?
+    last_import_time      DateTime?
+    tags                  TagsOnSourceNews[]
+    news                  News[]
+
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+
+    @@map("news_source")
+}
+
+model Advertisement {
+    id                    Int           @id @default(autoincrement())
+    title                 String
+    content               String?
+    link                  String?
+    is_draft              Boolean       @default(false)
+    priority              Int           @default(0)
+    pubDate               DateTime?
+    is_list_page          Boolean       @default(false)
+    is_search_page        Boolean       @default(false)
+    is_main_page        Boolean       @default(false)
+    is_filter_page        Boolean       @default(false)
+    regExp                String?
+
+    media                 Media?        @relation(fields: [media_id], references: [id])
+    media_id              Int?          @unique
+
+    new                   News?         @relation(fields: [new_id], references: [id], onDelete: Cascade)
+    new_id                Int?
+    createdAt             DateTime      @default(now())
+    updatedAt             DateTime      @updatedAt
+
+    @@map("advertisements")
+}
+
+model Settings {
+  id                  Int      @id @default(1)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  amount_per_page     Int      @default(0)
+
+  @@map("settings")
+}

@@ -1,0 +1,49 @@
+version: '3.8'
+volumes:
+  data:
+services:
+  postgres:
+    container_name: postgres_db
+    image: "postgres:latest"
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DBNAME}
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql
+
+
+  minio:
+    container_name: minio_storage
+    image: quay.io/minio/minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ~/minio/data:/data
+    command: server /data --console-address ":9001"
+
+
+  cms_app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://postgres:123456@postgres:5432/news_site
+      NODE_ENV: production
+    ports:
+      - "5173:5173"
+    depends_on:
+      - postgres
+      - minio
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: >
+      sh -c "npx prisma migrate dev --name init && npx prisma db seed && npm i tsx -g && npx remix vite:build && npm run start -p 5173"
+

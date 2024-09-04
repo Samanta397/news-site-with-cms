@@ -1,0 +1,219 @@
+import { Form, json, Link, redirect, useActionData } from '@remix-run/react';
+import { useReducer, useState } from 'react';
+import { Layout } from '~/components/Layout';
+import { Card } from '~/components/Card';
+import { FormField } from '~/components/FormField';
+import { Button } from '~/components/Button';
+import { Select, SelectItemType } from '~/components/Select';
+import { Role } from '~/types/user.types';
+import { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
+import {
+  RegisterFields,
+  RegisterFieldsErrors,
+} from '~/utils/validation/schema';
+import { Alert, AlertStatus } from '~/components/Alert';
+import { getUserSession, register } from '~/api/auth.server';
+import { commitSession } from '~/session';
+import { RegisterActionKind, registerReducer } from '~/utils/reducers/register';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Registration | News CMS' },
+    {
+      property: 'og:title',
+      content: 'News CMS',
+    },
+    {
+      name: 'description',
+      content: 'Register to News CMS admin panel',
+    },
+  ];
+};
+
+type ActionData = {
+  fields: RegisterFields;
+  errors?: RegisterFieldsErrors & {
+    error: string;
+    status: number;
+  };
+};
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const session = await getUserSession(request);
+
+  const formData = await request.formData();
+  const fields = Object.fromEntries(formData.entries()) as RegisterFields;
+  const result = RegisterFields.safeParse(fields);
+
+  if (!result.success) {
+    return json({
+      fields,
+      errors: result.error.flatten(),
+    });
+  }
+
+  const registeredData = await register(fields);
+
+  if (registeredData && 'error' in registeredData) {
+    return json({
+      fields,
+      errors: registeredData,
+    });
+  }
+
+  if (registeredData && 'id' in registeredData) {
+    session.set('userId', registeredData.id.toString());
+  }
+
+  return redirect('/dashboard/news', {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
+};
+
+export default function Register() {
+  const actionData = useActionData<typeof action>() as ActionData;
+
+  const roles = [
+    { id: 'Admin', value: Role.ADMIN },
+    { id: 'User', value: Role.USER },
+  ];
+
+  const [registerState, dispatch] = useReducer(registerReducer, {
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    role: Role.USER,
+  });
+
+  const [state, setState] = useState('register');
+
+  const handleSelectRole = (value: SelectItemType | SelectItemType[]) => {
+    if (!Array.isArray(value)) {
+      dispatch({
+        type: RegisterActionKind.ROLE,
+        payload:
+          roles.find((item) => value.value === item.value)?.value || Role.USER,
+      });
+    } else {
+      dispatch({ type: RegisterActionKind.ROLE, payload: Role.USER });
+    }
+  };
+
+  return (
+    <Layout>
+      <Card centered>
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+            Create new account
+          </h2>
+        </div>
+
+        {actionData?.errors && (
+          <div className="mt-4">
+            <Alert
+              title={'Something happened during registration'}
+              description={actionData?.errors?.error}
+              status={
+                actionData?.errors?.status === 500
+                  ? AlertStatus.ERROR
+                  : AlertStatus.WARNING
+              }
+            />
+          </div>
+        )}
+
+        <div className="mt-6 sm:mx-auto min-w-80 sm:w-full sm:max-w-sm">
+          <Form className="space-y-4" method="post" role={'register_form'}>
+            <FormField
+              name="first_name"
+              htmlFor="firstName"
+              label="First name"
+              value={registerState.first_name}
+              required
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.FIRST_NAME, payload: e })
+              }
+              aria-label="First name input"
+              errorMessage={actionData?.errors?.fieldErrors?.first_name}
+            />
+            <FormField
+              name="last_name"
+              htmlFor="lastName"
+              label="Last name"
+              value={registerState.last_name}
+              required
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.LAST_NAME, payload: e })
+              }
+              aria-label="Last name input"
+              errorMessage={actionData?.errors?.fieldErrors?.last_name}
+            />
+            <FormField
+              name="email"
+              htmlFor="email"
+              type="email"
+              label="Email"
+              value={registerState.email}
+              required
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.EMAIL, payload: e })
+              }
+              aria-label="Email input"
+              errorMessage={actionData?.errors?.fieldErrors?.email}
+            />
+
+            <FormField
+              name="password"
+              htmlFor="password"
+              type="password"
+              label="Password"
+              value={registerState.password}
+              required
+              onChange={(e) =>
+                dispatch({ type: RegisterActionKind.PASSWORD, payload: e })
+              }
+              aria-label="Password input"
+              errorMessage={actionData?.errors?.fieldErrors?.password}
+            />
+
+            <Select
+              label={'Role'}
+              name={'role'}
+              options={roles}
+              value={
+                roles.find((item) => registerState.role === item.value) ||
+                roles[1]
+              }
+              onSelect={handleSelectRole}
+              aria-label="Role selector"
+            />
+
+            <Button
+              type={'submit'}
+              label={'Sign in'}
+              onClick={() => console.log('Sing in')}
+              fullWidth
+              aria-label="Register"
+            />
+          </Form>
+
+          <p className="mt-10 text-center text-sm text-gray-500">
+            {state === 'login' ? 'Not a member?' : 'Login to account'}
+            <Link
+              to="/login"
+              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 ml-1"
+              onClick={() => setState(state == 'login' ? 'register' : 'login')}
+              aria-label={
+                state === 'login' ? 'Go to register account' : 'Go to login'
+              }
+            >
+              {state === 'login' ? 'Sign up' : 'Sign in'}
+            </Link>
+          </p>
+        </div>
+      </Card>
+    </Layout>
+  );
+}
