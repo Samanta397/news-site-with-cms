@@ -30,20 +30,20 @@ services:
       - ~/minio/data:/data
     command: server /data --console-address ":9001"
 
-
-  cms_app:
-    build: .
-    environment:
-      DATABASE_URL: postgresql://postgres:123456@postgres:5432/news_site
-      NODE_ENV: production
-    ports:
-      - "5173:5173"
-    depends_on:
-      - postgres
-      - minio
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: >
-      sh -c "npx prisma migrate dev --name init && npx prisma db seed && npm i tsx -g && npx remix vite:build && npm run start -p 5173"
-
+#
+#  cms_app:
+#    build: .
+#    environment:
+#      DATABASE_URL: postgresql://postgres:123456@postgres:5432/news_site
+#      NODE_ENV: production
+#    ports:
+#      - "5173:5173"
+#    depends_on:
+#      - postgres
+#      - minio
+#    volumes:
+#      - .:/app
+#      - /app/node_modules
+#    command: >
+#      sh -c "npx prisma migrate dev --name init && npx prisma db seed && npm i tsx -g && npx remix vite:build && npm run start -p 5173"
+#

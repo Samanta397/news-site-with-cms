@@ -11,7 +11,7 @@
     "typecheck": "tsc",
     "cron": "npx tsx app/cron.ts",
     "setup": "prisma migrate dev",
-    "docker-up": "docker-compose up",
+    "docker-up": "docker-compose up -d",
     "docker-down": "docker-compose down",
     "cron-container": "docker exec -it cms_app sh -c 'npm run cron'"
   },
