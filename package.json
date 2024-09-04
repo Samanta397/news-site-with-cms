@@ -7,10 +7,13 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "remix-serve ./build/server/index.js -p 5173",
     "typecheck": "tsc",
     "cron": "npx tsx app/cron.ts",
-    "docker-compose": "docker-compose up -d"
+    "setup": "prisma migrate dev",
+    "docker-up": "docker-compose up",
+    "docker-down": "docker-compose down",
+    "cron-container": "docker exec -it cms_app sh -c 'npm run cron'"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

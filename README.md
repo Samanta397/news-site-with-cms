@@ -7,11 +7,15 @@
 2. **Docker/Compose**
 3. **npm**
 
+## Start the project
+- `npm docker-up` - up docker containers
+- `npm docker-down` - down docker containers
+
+
 ## Development
 
-- `npm docker-compose` - up docker containers
 - `npm install` - install dependencies.
 - `npx prisma migrate dev` - create prisma migrations from /web directory.
+- `npx prisma db seed` - run seeding.
 - `npm run dev` - run your app from root directory.
 - `npm run cron` - start cron process.
-

@@ -45,7 +45,7 @@ export async function getUser(id: number) {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        id,
+        id: id,
       },
     });
 
